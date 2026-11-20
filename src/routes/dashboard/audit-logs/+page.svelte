@@ -11,6 +11,7 @@
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { Skeleton } from '#lib/components/ui/skeleton/index.js';
 	import * as Sheet from '#lib/components/ui/sheet/index.js';
+	import * as Select from '#lib/components/ui/select/index.js';
 	import AuditEntryItem from '#lib/components/domain/audit-entry.svelte';
 	import UserSelect from '#lib/components/domain/user-select.svelte';
 	import TablePagination from '#lib/components/domain/table-pagination.svelte';
@@ -193,16 +194,25 @@
 
 			<div class="flex flex-col gap-1.5">
 				<label class="text-xs font-medium" for="audit-type">{t('audit.entityType')}</label>
-				<select
-					id="audit-type"
-					class="h-8 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-					bind:value={filters.auditable_type}
+				<Select.Root
+					type="single"
+					value={filters.auditable_type || 'all'}
+					onValueChange={(value) => (filters.auditable_type = value === 'all' ? '' : value)}
 				>
-					<option value="">{t('audit.allTypes')}</option>
-					{#each auditableTypes as type (type)}
-						<option value={type}>{typeLabel(type)}</option>
-					{/each}
-				</select>
+					<Select.Trigger id="audit-type" class="h-8 w-full">
+						<Select.Value placeholder={t('audit.allTypes')} />
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Item value="all" label={t('audit.allTypes')}>
+							{t('audit.allTypes')}
+						</Select.Item>
+						{#each auditableTypes as type (type)}
+							<Select.Item value={type} label={typeLabel(type)}>
+								{typeLabel(type)}
+							</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
 			</div>
 
 			<div class="flex flex-col gap-1.5">
@@ -237,15 +247,22 @@
 
 			<div class="flex flex-col gap-1.5">
 				<label class="text-xs font-medium" for="audit-per-page">{t('audit.perPage')}</label>
-				<select
-					id="audit-per-page"
-					class="h-8 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-					bind:value={filters.per_page}
+				<Select.Root
+					type="single"
+					value={String(filters.per_page)}
+					onValueChange={(value) => (filters.per_page = Number(value))}
 				>
-					{#each [25, 50, 100] as size (size)}
-						<option value={size}>{size}</option>
-					{/each}
-				</select>
+					<Select.Trigger id="audit-per-page" class="h-8 w-full">
+						<Select.Value />
+					</Select.Trigger>
+					<Select.Content>
+						{#each [25, 50, 100] as size (size)}
+							<Select.Item value={String(size)} label={String(size)}>
+								{size}
+							</Select.Item>
+						{/each}
+					</Select.Content>
+				</Select.Root>
 			</div>
 
 			<details class="flex flex-col gap-1.5">

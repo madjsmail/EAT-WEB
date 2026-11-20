@@ -20,7 +20,7 @@
 	align="start"
 >
 	<Command.Root shouldFilter>
-		<Command.Input {placeholder} bind:value={internalInput} />
+		<Command.Input {placeholder} bind:value={internalInput} icon={false} />
 		<Command.List>
 			<Command.Empty>{emptyLabel}</Command.Empty>
 			{@render children()}

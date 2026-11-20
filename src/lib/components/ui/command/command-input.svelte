@@ -8,8 +8,9 @@
 		ref = $bindable(null),
 		class: className,
 		value = $bindable(""),
+		icon = true,
 		...restProps
-	}: CommandPrimitive.InputProps = $props();
+	}: CommandPrimitive.InputProps & { icon?: boolean } = $props();
 </script>
 
 <div data-slot="command-input-wrapper" class="cn-command-input-wrapper">
@@ -27,15 +28,17 @@
 				<InputGroup.Input {...props} bind:value bind:ref />
 			{/snippet}
 		</CommandPrimitive.Input>
-		<InputGroup.Addon>
-			<IconPlaceholder
-				lucide="SearchIcon"
-				tabler="IconSearch"
-				hugeicons="SearchIcon"
-				phosphor="MagnifyingGlassIcon"
-				remixicon="RiSearchLine"
-				class="cn-command-input-icon"
-			/>
-		</InputGroup.Addon>
+		{#if icon}
+			<InputGroup.Addon>
+				<IconPlaceholder
+					lucide="SearchIcon"
+					tabler="IconSearch"
+					hugeicons="SearchIcon"
+					phosphor="MagnifyingGlassIcon"
+					remixicon="RiSearchLine"
+					class="cn-command-input-icon"
+				/>
+			</InputGroup.Addon>
+		{/if}
 	</InputGroup.Root>
 </div>
