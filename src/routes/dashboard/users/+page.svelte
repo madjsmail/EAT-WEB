@@ -12,6 +12,7 @@
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import UserMinusIcon from '@lucide/svelte/icons/user-minus';
 	import SendIcon from '@lucide/svelte/icons/send';
+	import XIcon from '@lucide/svelte/icons/x';
 	import { ApiError, buildQuery, type Pagination } from '#lib/api/client.js';
 	import { requestLoginLink } from '#lib/api/auth.js';
 	import {
@@ -143,6 +144,17 @@
 		void load(1);
 	}
 
+	const hasFilters = $derived(Boolean(q.trim() || departmentId || locationId || managerId || status));
+
+	function clearFilters() {
+		q = '';
+		departmentId = '';
+		locationId = '';
+		managerId = '';
+		status = '';
+		void load(1);
+	}
+
 	async function remove(user: UserResponse) {
 		if (!confirm(t('user.confirmDelete'))) return;
 		deletingId = user.id;
@@ -254,6 +266,12 @@
 				/>
 			</div>
 			<Button type="submit" variant="outline">{t('table.search')}</Button>
+			{#if hasFilters}
+				<Button type="button" variant="ghost" onclick={clearFilters}>
+					<XIcon />
+					{t('table.clearFilters')}
+				</Button>
+			{/if}
 		</div>
 
 		<div class="flex flex-wrap gap-1">
