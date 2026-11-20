@@ -644,5 +644,9 @@
 	"license.revokeNotes": "Reason (optional)",
 	"license.seatRevoked": "Seat revoked",
 	"license.noSeatsTitle": "No seats allocated",
-	"license.noSeatsDescription": "Allocate a seat to a person or an asset."
+	"license.noSeatsDescription": "Allocate a seat to a person or an asset.",
+	"nav.accessories": "Accessories",
+	"nav.consumables": "Consumables",
+	"nav.licenses": "Licenses",
+	"table.searchPlaceholder": "Search…"
 }

@@ -644,5 +644,9 @@
 	"license.revokeNotes": "Motif (facultatif)",
 	"license.seatRevoked": "Siège révoqué",
 	"license.noSeatsTitle": "Aucun siège attribué",
-	"license.noSeatsDescription": "Attribuez un siège à une personne ou à un actif."
+	"license.noSeatsDescription": "Attribuez un siège à une personne ou à un actif.",
+	"nav.accessories": "Accessoires",
+	"nav.consumables": "Consommables",
+	"nav.licenses": "Licences",
+	"table.searchPlaceholder": "Rechercher…"
 }

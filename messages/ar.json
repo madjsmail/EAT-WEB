@@ -644,5 +644,9 @@
 	"license.revokeNotes": "السبب (اختياري)",
 	"license.seatRevoked": "تم سحب المقعد",
 	"license.noSeatsTitle": "لا مقاعد مخصصة",
-	"license.noSeatsDescription": "خصص مقعدًا لشخص أو أصل."
+	"license.noSeatsDescription": "خصص مقعدًا لشخص أو أصل.",
+	"nav.accessories": "الملحقات",
+	"nav.consumables": "المستهلكات",
+	"nav.licenses": "التراخيص",
+	"table.searchPlaceholder": "بحث…"
 }
