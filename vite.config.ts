@@ -41,6 +41,16 @@ export default defineConfig({
 			emitTsDeclarations: true
 		})
 	],
+	server: {
+		proxy: {
+			// Same-origin API calls during development; cookies stay on localhost.
+			'/v1/api': {
+				target: process.env.API_PROXY_TARGET ?? 'http://127.0.0.1:8000',
+				changeOrigin: true
+			}
+		}
+	},
+
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
