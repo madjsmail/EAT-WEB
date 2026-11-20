@@ -123,16 +123,16 @@
 								<FieldLabel for="lookup-{field.key}">{t(field.labelKey)}</FieldLabel>
 								{#if field.type === 'select'}
 									<EnumSelect
-						id="lookup-{field.key}"
-						value={textValue(field.key)}
-						onchange={(value) => (values[field.key] = value)}
-						options={(field.options ?? []).map((option) => ({
-							value: option.value,
-							label: option.labelKey ? t(option.labelKey) : t(`lookup.enum.${option.value}`)
-						}))}
-						clearLabel="—"
-						required={field.required}
-					/>
+										id="lookup-{field.key}"
+										value={textValue(field.key)}
+										onchange={(value) => (values[field.key] = value)}
+										options={(field.options ?? []).map((option) => ({
+											value: option.value,
+											label: option.labelKey ? t(option.labelKey) : t(`lookup.enum.${option.value}`)
+										}))}
+										clearLabel="—"
+										required={field.required}
+									/>
 								{:else if field.type === 'parent'}
 									<SearchSelect
 										id="lookup-{field.key}"

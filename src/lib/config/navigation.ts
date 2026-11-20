@@ -6,10 +6,16 @@ import MonitorSmartphoneIcon from '@lucide/svelte/icons/monitor-smartphone';
 import UsersIcon from '@lucide/svelte/icons/users';
 import PackageIcon from '@lucide/svelte/icons/package';
 import PackageOpenIcon from '@lucide/svelte/icons/package-open';
-import ListTreeIcon from '@lucide/svelte/icons/list-tree';
 import BoxesIcon from '@lucide/svelte/icons/boxes';
 import WrenchIcon from '@lucide/svelte/icons/wrench';
 import ScrollTextIcon from '@lucide/svelte/icons/scroll-text';
+import TagsIcon from '@lucide/svelte/icons/tags';
+import FactoryIcon from '@lucide/svelte/icons/factory';
+import CircleDotIcon from '@lucide/svelte/icons/circle-dot';
+import Building2Icon from '@lucide/svelte/icons/building-2';
+import MapPinIcon from '@lucide/svelte/icons/map-pin';
+import TruckIcon from '@lucide/svelte/icons/truck';
+import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
 import type { Component } from 'svelte';
 
 /** Advisory counter rendered next to the label; sourced from the alerts store. */
@@ -27,7 +33,13 @@ export type NavHref =
 	| '/dashboard/maintenances'
 	| '/dashboard/audit-logs'
 	| '/dashboard/invitations'
-	| '/dashboard/settings/lookups'
+	| '/dashboard/settings/lookups/categories'
+	| '/dashboard/settings/lookups/manufacturers'
+	| '/dashboard/settings/lookups/statuses'
+	| '/dashboard/settings/lookups/departments'
+	| '/dashboard/settings/lookups/locations'
+	| '/dashboard/settings/lookups/suppliers'
+	| '/dashboard/settings/lookups/depreciation-models'
 	| '/dashboard/settings/sessions';
 
 export interface NavLink {
@@ -114,14 +126,55 @@ export const navGroups: NavGroup[] = [
 		]
 	},
 	{
-		labelKey: 'nav.group.settings',
+		labelKey: 'nav.group.lookups',
 		links: [
 			{
-				titleKey: 'nav.lookups',
-				href: '/dashboard/settings/lookups',
-				icon: ListTreeIcon,
+				titleKey: 'lookup.categories.title',
+				href: '/dashboard/settings/lookups/categories',
+				icon: TagsIcon,
 				permission: 'lookups.read'
 			},
+			{
+				titleKey: 'lookup.manufacturers.title',
+				href: '/dashboard/settings/lookups/manufacturers',
+				icon: FactoryIcon,
+				permission: 'lookups.read'
+			},
+			{
+				titleKey: 'lookup.statuses.title',
+				href: '/dashboard/settings/lookups/statuses',
+				icon: CircleDotIcon,
+				permission: 'lookups.read'
+			},
+			{
+				titleKey: 'lookup.departments.title',
+				href: '/dashboard/settings/lookups/departments',
+				icon: Building2Icon,
+				permission: 'lookups.read'
+			},
+			{
+				titleKey: 'lookup.locations.title',
+				href: '/dashboard/settings/lookups/locations',
+				icon: MapPinIcon,
+				permission: 'lookups.read'
+			},
+			{
+				titleKey: 'lookup.suppliers.title',
+				href: '/dashboard/settings/lookups/suppliers',
+				icon: TruckIcon,
+				permission: 'lookups.read'
+			},
+			{
+				titleKey: 'lookup.depreciationModels.title',
+				href: '/dashboard/settings/lookups/depreciation-models',
+				icon: TrendingDownIcon,
+				permission: 'lookups.read'
+			}
+		]
+	},
+	{
+		labelKey: 'nav.group.settings',
+		links: [
 			{
 				titleKey: 'nav.sessions',
 				href: '/dashboard/settings/sessions',
