@@ -16,6 +16,8 @@
 	import { Skeleton } from '#lib/components/ui/skeleton/index.js';
 	import * as Table from '#lib/components/ui/table/index.js';
 	import TablePagination from '#lib/components/domain/table-pagination.svelte';
+	import SearchSelect, { type SelectOption } from '#lib/components/domain/search-select.svelte';
+	import { lookupOptions } from '#lib/config/select-options.js';
 	import ProductForm from './product-form.svelte';
 
 	const canWrite = $derived(session.has('products.write'));
@@ -37,6 +39,13 @@
 	let categoryId = $state('');
 	let manufacturerId = $state('');
 	let archived = $state('');
+
+	const categoryOptions = $derived(lookupOptions(categories));
+	const manufacturerOptions = $derived(lookupOptions(manufacturers));
+	const archivedOptions: SelectOption[] = [
+		{ value: 'false', label: t('product.activeOnly') },
+		{ value: 'true', label: t('product.archivedOnly') }
+	];
 
 	async function load(page = 1) {
 		loading = true;
@@ -125,38 +134,36 @@
 
 	<form class="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3" onsubmit={search}>
 		<Input class="sm:max-w-64" placeholder={t('table.searchPlaceholder')} bind:value={q} />
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('product.category')}
-			bind:value={categoryId}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('product.allCategories')}</option>
-			{#each categories as item (item.id)}
-				<option value={item.id}>{resolveI18n(item.translations)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('product.manufacturer')}
-			bind:value={manufacturerId}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('product.allManufacturers')}</option>
-			{#each manufacturers as item (item.id)}
-				<option value={item.id}>{resolveI18n(item.translations)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('product.isArchived')}
-			bind:value={archived}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('product.allStatuses')}</option>
-			<option value="false">{t('product.activeOnly')}</option>
-			<option value="true">{t('product.archivedOnly')}</option>
-		</select>
+		<div class="w-48">
+			<SearchSelect
+				aria-label={t('product.category')}
+				bind:value={categoryId}
+				options={categoryOptions}
+				allowClear
+				allLabel={t('product.allCategories')}
+				onchange={() => load(1)}
+			/>
+		</div>
+		<div class="w-48">
+			<SearchSelect
+				aria-label={t('product.manufacturer')}
+				bind:value={manufacturerId}
+				options={manufacturerOptions}
+				allowClear
+				allLabel={t('product.allManufacturers')}
+				onchange={() => load(1)}
+			/>
+		</div>
+		<div class="w-40">
+			<SearchSelect
+				aria-label={t('product.isArchived')}
+				bind:value={archived}
+				options={archivedOptions}
+				allowClear
+				allLabel={t('product.allStatuses')}
+				onchange={() => load(1)}
+			/>
+		</div>
 		<Button type="submit" variant="outline">{t('table.search')}</Button>
 	</form>
 

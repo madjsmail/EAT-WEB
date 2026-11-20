@@ -32,10 +32,10 @@
 	const priorities = ['low', 'medium', 'high', 'critical'];
 
 	const statusTone: Record<string, string> = {
-		open: 'border-amber-200 bg-amber-500/10 text-amber-700',
-		in_progress: 'border-blue-200 bg-blue-500/10 text-blue-700',
-		completed: 'border-emerald-200 bg-emerald-500/10 text-emerald-700',
-		cancelled: 'border-slate-200 bg-slate-500/10 text-slate-700'
+		open: 'border-amber-200 bg-amber-500/10 text-amber-700 dark:border-amber-400/30 dark:text-amber-300',
+		in_progress: 'border-blue-200 bg-blue-500/10 text-blue-700 dark:border-blue-400/30 dark:text-blue-300',
+		completed: 'border-emerald-200 bg-emerald-500/10 text-emerald-700 dark:border-emerald-400/30 dark:text-emerald-300',
+		cancelled: 'border-slate-200 bg-slate-500/10 text-slate-700 dark:border-slate-400/30 dark:text-slate-300'
 	};
 
 	let tickets = $state<Maintenance[]>([]);

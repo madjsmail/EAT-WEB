@@ -829,5 +829,10 @@
   "nav.maintenances": "Maintenance",
   "nav.auditLogs": "Audit log",
   "product.detailTitle": "Product",
-  "product.backToList": "Back to products"
+  "product.backToList": "Back to products",
+  "dynamicSelect.search": "Search…",
+  "dynamicSelect.empty": "No matching option",
+  "dynamicSelect.select": "Select…",
+  "dynamicSelect.all": "All",
+  "dynamicSelect.required": "Select a value"
 }

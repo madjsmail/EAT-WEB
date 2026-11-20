@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Field, FieldDescription, FieldLabel } from '#lib/components/ui/field/index.js';
-	import { Input } from '#lib/components/ui/input/index.js';
 	import { t } from '#lib/i18n/index.js';
 	import type { Asset } from '#lib/api/assets.js';
+	import SearchSelect, { type SelectOption } from '#lib/components/domain/search-select.svelte';
+	import UserSelect from '#lib/components/domain/user-select.svelte';
 
 	let {
 		target = $bindable<'user' | 'asset'>('user'),
@@ -19,6 +20,13 @@
 	} = $props();
 
 	const uid = $props.id();
+	const assetChoices = $derived<SelectOption[]>(
+		assets.map((asset) => ({
+			value: asset.id,
+			label: `${asset.name} · ${asset.asset_tag}`,
+			keywords: [asset.name, asset.asset_tag]
+		}))
+	);
 	const options = [
 		{ value: 'user', labelKey: 'target.employee' },
 		{ value: 'asset', labelKey: 'target.asset' }
@@ -52,36 +60,27 @@
 	{#if target === 'user'}
 		<Field>
 			<FieldLabel for="{uid}-user">{t('target.userId')}</FieldLabel>
-			<Input
-				id="{uid}-user"
-				placeholder="UUID"
-				required
-				{disabled}
+			<UserSelect
+				label={t('target.userId')}
 				value={userId}
-				oninput={(event: Event & { currentTarget: HTMLInputElement }) =>
-					(userId = event.currentTarget.value)}
+				onchange={(id) => (userId = id)}
+				{disabled}
 			/>
 			<FieldDescription>{t('target.userHint')}</FieldDescription>
 		</Field>
 	{:else}
 		<Field>
 			<FieldLabel for="{uid}-asset">{t('target.asset')}</FieldLabel>
-			<select
+			<SearchSelect
 				id="{uid}-asset"
-				class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-				required
+				bind:value={assetId}
+				options={assetChoices}
 				{disabled}
-				value={assetId}
-				onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-					(assetId = event.currentTarget.value)}
-			>
-				<option value="">—</option>
-				{#each assets as asset (asset.id)}
-					<option value={asset.id}>
-						{asset.name} · {asset.asset_tag}
-					</option>
-				{/each}
-			</select>
+				required
+				allowClear
+				allLabel="—"
+				aria-label={t('target.asset')}
+			/>
 			<FieldDescription>{t('target.assetHint')}</FieldDescription>
 		</Field>
 	{/if}

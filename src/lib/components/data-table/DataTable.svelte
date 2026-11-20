@@ -112,7 +112,7 @@
 		{:else if error}
 			<div
 				role="alert"
-				class="flex flex-wrap items-center gap-2 rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"
+				class="flex flex-wrap items-center gap-2 rounded-md border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-300"
 			>
 				<CircleAlert class="size-4 shrink-0" />
 				<div class="flex-1">

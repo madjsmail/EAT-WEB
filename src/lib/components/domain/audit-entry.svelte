@@ -94,23 +94,23 @@
 								{#if isStructured(change.old) || isStructured(change.new)}
 									{#if change.old !== null && change.old !== undefined}
 										<pre
-											class="max-h-40 overflow-auto rounded bg-rose-500/10 p-2 text-rose-700 line-through">{prettyJson(
+											class="max-h-40 overflow-auto rounded bg-rose-500/10 p-2 text-rose-700 dark:text-rose-300 line-through">{prettyJson(
 												change.old
 											)}</pre>
 									{/if}
 									{#if change.new !== null && change.new !== undefined}
 										<pre
-											class="max-h-40 overflow-auto rounded bg-emerald-500/10 p-2 text-emerald-700">{prettyJson(
+											class="max-h-40 overflow-auto rounded bg-emerald-500/10 p-2 text-emerald-700 dark:text-emerald-300">{prettyJson(
 												change.new
 											)}</pre>
 									{/if}
 								{:else}
 									<span class="flex flex-wrap items-center gap-1">
-										<code class="rounded bg-rose-500/10 px-1 text-rose-700 line-through">
+										<code class="rounded bg-rose-500/10 px-1 text-rose-700 dark:text-rose-300 line-through">
 											{inlineValue(change.old)}
 										</code>
 										<span class="text-muted-foreground">→</span>
-										<code class="rounded bg-emerald-500/10 px-1 text-emerald-700">
+										<code class="rounded bg-emerald-500/10 px-1 text-emerald-700 dark:text-emerald-300">
 											{inlineValue(change.new)}
 										</code>
 									</span>
@@ -132,13 +132,13 @@
 			<Collapsible.Content>
 				<div class="mt-2 grid gap-2 text-xs sm:grid-cols-2">
 					<div>
-						<p class="mb-1 font-medium text-rose-700">{t('audit.oldValues')}</p>
+						<p class="mb-1 font-medium text-rose-700 dark:text-rose-300">{t('audit.oldValues')}</p>
 						<pre class="max-h-48 overflow-auto rounded bg-rose-500/10 p-2">{prettyJson(
 							entry.old_values
 						)}</pre>
 					</div>
 					<div>
-						<p class="mb-1 font-medium text-emerald-700">{t('audit.newValues')}</p>
+						<p class="mb-1 font-medium text-emerald-700 dark:text-emerald-300">{t('audit.newValues')}</p>
 						<pre class="max-h-48 overflow-auto rounded bg-emerald-500/10 p-2">{prettyJson(
 							entry.new_values
 						)}</pre>

@@ -84,7 +84,7 @@
 		{#if accepted}
 			<div class="flex flex-col items-center gap-4 text-center">
 				<div
-					class="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"
+					class="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
 				>
 					<CheckCircle2Icon class="size-6" />
 				</div>

@@ -829,5 +829,10 @@
   "nav.maintenances": "الصيانة",
   "nav.auditLogs": "سجل التدقيق",
   "product.detailTitle": "منتج",
-  "product.backToList": "العودة إلى المنتجات"
+  "product.backToList": "العودة إلى المنتجات",
+  "dynamicSelect.search": "ابحث…",
+  "dynamicSelect.empty": "لا يوجد خيار مطابق",
+  "dynamicSelect.select": "اختر…",
+  "dynamicSelect.all": "الكل",
+  "dynamicSelect.required": "اختر قيمة"
 }

@@ -3,6 +3,7 @@
 	import { t } from '#lib/i18n/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { listAssets, type Asset } from '#lib/api/assets.js';
+	import SearchSelect, { type SelectOption } from '#lib/components/domain/search-select.svelte';
 
 	let {
 		value = '',
@@ -18,7 +19,7 @@
 
 	let query = $state('');
 	let assets = $state<Asset[]>([]);
-	let selected = $state<Asset | null>(null);
+	let chosen = $state<Asset | null>(null);
 
 	const search = debounce(
 		async (q: string) => {
@@ -37,11 +38,30 @@
 	});
 
 	$effect(() => {
-		if (!value) selected = null;
-		else if (selected?.id !== value) {
-			selected = assets.find((asset) => asset.id === value) ?? selected;
+		if (!value) {
+			chosen = null;
+			return;
 		}
+		const found = assets.find((asset) => asset.id === value);
+		if (found) chosen = found;
 	});
+
+	const options = $derived<SelectOption[]>([
+		...(chosen && !assets.some((asset) => asset.id === chosen?.id)
+			? [
+					{
+						value: chosen.id,
+						label: `${chosen.asset_tag} · ${chosen.name}`,
+						keywords: [chosen.asset_tag, chosen.name]
+					}
+				]
+			: []),
+		...assets.map((asset) => ({
+			value: asset.id,
+			label: `${asset.asset_tag} · ${asset.name}`,
+			keywords: [asset.asset_tag, asset.name]
+		}))
+	]);
 </script>
 
 <div class="flex flex-col gap-1.5">
@@ -52,20 +72,13 @@
 		{disabled}
 		bind:value={query}
 	/>
-	<select
-		class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+	<SearchSelect
 		aria-label={label}
-		{disabled}
 		{value}
-		onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-			onchange(event.currentTarget.value)}
-	>
-		<option value="">{t('assetSelect.any')}</option>
-		{#if selected && !assets.some((asset) => asset.id === selected?.id)}
-			<option value={selected.id}>{selected.asset_tag} · {selected.name}</option>
-		{/if}
-		{#each assets as asset (asset.id)}
-			<option value={asset.id}>{asset.asset_tag} · {asset.name}</option>
-		{/each}
-	</select>
+		{options}
+		{disabled}
+		allowClear
+		allLabel={t('assetSelect.any')}
+		{onchange}
+	/>
 </div>

@@ -12,10 +12,12 @@
 		FieldLabel
 	} from '#lib/components/ui/field/index.js';
 	import TranslationInputs from '#lib/components/domain/translation-inputs.svelte';
+	import SearchSelect from '#lib/components/domain/search-select.svelte';
 	import { ApiError } from '#lib/api/client.js';
 	import { createAccessory, updateAccessory, type Accessory } from '#lib/api/accessories.js';
 	import type { Lookup } from '#lib/api/lookups.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { lookupOptions } from '#lib/config/select-options.js';
+	import { t } from '#lib/i18n/index.js';
 	import type { Translations } from '#lib/i18n/index.js';
 
 	let {
@@ -60,8 +62,17 @@
 	let saving = $state(false);
 	let error = $state<string | null>(null);
 
+	const categoryChoices = $derived(lookupOptions(categories, true));
+	const manufacturerChoices = $derived(lookupOptions(manufacturers));
+	const locationChoices = $derived(lookupOptions(locations));
+	const supplierChoices = $derived(lookupOptions(suppliers));
+
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
+		if (!categoryId) {
+			error = t('dynamicSelect.required');
+			return;
+		}
 		saving = true;
 		error = null;
 		try {
@@ -123,36 +134,22 @@
 					<FieldGroup class="grid gap-4 sm:grid-cols-2">
 						<Field>
 							<FieldLabel for="accessory-category">{t('accessory.category')} *</FieldLabel>
-							<select
+							<SearchSelect
 								id="accessory-category"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+								bind:value={categoryId}
+								options={categoryChoices}
 								required
-								value={categoryId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(categoryId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each categories as item (item.id)}
-									<option value={item.id}>
-										{resolveI18n(item.translations, undefined, item.code ?? '')}
-									</option>
-								{/each}
-							</select>
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="accessory-manufacturer">{t('accessory.manufacturer')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="accessory-manufacturer"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={manufacturerId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(manufacturerId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each manufacturers as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={manufacturerId}
+								options={manufacturerChoices}
+								allowClear
+								allLabel="—"
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="accessory-model">{t('accessory.modelNumber')}</FieldLabel>
@@ -165,18 +162,13 @@
 						</Field>
 						<Field>
 							<FieldLabel for="accessory-location">{t('accessory.location')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="accessory-location"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={locationId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(locationId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each locations as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={locationId}
+								options={locationChoices}
+								allowClear
+								allLabel="—"
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="accessory-total">{t('accessory.totalQuantity')} *</FieldLabel>
@@ -221,18 +213,13 @@
 					<FieldGroup class="grid gap-4 sm:grid-cols-2">
 						<Field>
 							<FieldLabel for="accessory-supplier">{t('accessory.supplier')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="accessory-supplier"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={supplierId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(supplierId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each suppliers as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={supplierId}
+								options={supplierChoices}
+								allowClear
+								allLabel="—"
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="accessory-cost">{t('accessory.purchaseCost')}</FieldLabel>

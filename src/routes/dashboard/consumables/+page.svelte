@@ -8,7 +8,8 @@
 	import { ApiError, type Pagination } from '#lib/api/client.js';
 	import { deleteConsumable, listConsumables, type Consumable } from '#lib/api/consumables.js';
 	import { listLookups, type Lookup } from '#lib/api/lookups.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { t } from '#lib/i18n/index.js';
+	import { lookupOptions } from '#lib/config/select-options.js';
 	import { session } from '#lib/stores/session.svelte.js';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import { Badge } from '#lib/components/ui/badge/index.js';
@@ -17,6 +18,7 @@
 	import * as Table from '#lib/components/ui/table/index.js';
 	import TablePagination from '#lib/components/domain/table-pagination.svelte';
 	import ConsumableForm from './consumable-form.svelte';
+	import SearchSelect, { type SelectOption } from '#lib/components/domain/search-select.svelte';
 
 	const canWrite = $derived(session.has('consumables.write'));
 
@@ -37,6 +39,16 @@
 	let categoryId = $state('');
 	let lowStock = $state('');
 	let archived = $state('');
+
+	const categoryChoices = $derived(lookupOptions(categories));
+	const stockChoices: SelectOption[] = [
+		{ value: 'true', label: t('consumable.lowStockOnly') },
+		{ value: 'false', label: t('consumable.healthyOnly') }
+	];
+	const archivedChoices: SelectOption[] = [
+		{ value: 'false', label: t('consumable.activeOnly') },
+		{ value: 'true', label: t('consumable.archivedOnly') }
+	];
 
 	async function load(page = 1) {
 		loading = true;
@@ -125,37 +137,36 @@
 
 	<form class="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3" onsubmit={search}>
 		<Input class="sm:max-w-64" placeholder={t('consumable.searchPlaceholder')} bind:value={q} />
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('consumable.category')}
-			bind:value={categoryId}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('consumable.allCategories')}</option>
-			{#each categories as item (item.id)}
-				<option value={item.id}>{resolveI18n(item.translations)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('consumable.lowStock')}
-			bind:value={lowStock}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('consumable.allStockLevels')}</option>
-			<option value="true">{t('consumable.lowStockOnly')}</option>
-			<option value="false">{t('consumable.healthyOnly')}</option>
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('consumable.isArchived')}
-			bind:value={archived}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('consumable.allStatuses')}</option>
-			<option value="false">{t('consumable.activeOnly')}</option>
-			<option value="true">{t('consumable.archivedOnly')}</option>
-		</select>
+		<div class="w-48">
+			<SearchSelect
+				aria-label={t('consumable.category')}
+				bind:value={categoryId}
+				options={categoryChoices}
+				allowClear
+				allLabel={t('consumable.allCategories')}
+				onchange={() => load(1)}
+			/>
+		</div>
+		<div class="w-48">
+			<SearchSelect
+				aria-label={t('consumable.lowStock')}
+				bind:value={lowStock}
+				options={stockChoices}
+				allowClear
+				allLabel={t('consumable.allStockLevels')}
+				onchange={() => load(1)}
+			/>
+		</div>
+		<div class="w-40">
+			<SearchSelect
+				aria-label={t('consumable.isArchived')}
+				bind:value={archived}
+				options={archivedChoices}
+				allowClear
+				allLabel={t('consumable.allStatuses')}
+				onchange={() => load(1)}
+			/>
+		</div>
 		<Button type="submit" variant="outline">{t('table.search')}</Button>
 	</form>
 

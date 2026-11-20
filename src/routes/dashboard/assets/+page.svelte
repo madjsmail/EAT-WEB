@@ -8,7 +8,8 @@
 	import { deleteAsset, listAssets, type Asset } from '#lib/api/assets.js';
 	import { listLookups, type Lookup } from '#lib/api/lookups.js';
 	import { listProducts, type Product } from '#lib/api/products.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { t } from '#lib/i18n/index.js';
+	import { lookupOptions, productOptions } from '#lib/config/select-options.js';
 	import { session } from '#lib/stores/session.svelte.js';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
@@ -17,6 +18,7 @@
 	import StatusBadge from '#lib/components/domain/status-badge.svelte';
 	import TablePagination from '#lib/components/domain/table-pagination.svelte';
 	import AssetForm from '#lib/components/domain/asset-form.svelte';
+	import SearchSelect from '#lib/components/domain/search-select.svelte';
 
 	const canWrite = $derived(session.has('assets.write'));
 
@@ -38,6 +40,11 @@
 	let locationId = $state('');
 	let departmentId = $state('');
 	let productId = $state('');
+
+	const statusChoices = $derived(lookupOptions(statuses));
+	const locationChoices = $derived(lookupOptions(locations));
+	const departmentChoices = $derived(lookupOptions(departments));
+	const productChoices = $derived(productOptions(products));
 
 	async function load(page = 1) {
 		loading = true;
@@ -124,50 +131,46 @@
 
 	<form class="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3" onsubmit={search}>
 		<Input class="sm:max-w-64" placeholder={t('asset.searchPlaceholder')} bind:value={q} />
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('asset.status')}
-			bind:value={statusId}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('asset.allStatuses')}</option>
-			{#each statuses as item (item.id)}
-				<option value={item.id}>{resolveI18n(item.translations)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('asset.location')}
-			bind:value={locationId}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('asset.allLocations')}</option>
-			{#each locations as item (item.id)}
-				<option value={item.id}>{resolveI18n(item.translations)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('asset.department')}
-			bind:value={departmentId}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('asset.allDepartments')}</option>
-			{#each departments as item (item.id)}
-				<option value={item.id}>{resolveI18n(item.translations)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('asset.product')}
-			bind:value={productId}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('asset.allProducts')}</option>
-			{#each products as item (item.id)}
-				<option value={item.id}>{resolveI18n(item.translations, undefined, item.name)}</option>
-			{/each}
-		</select>
+		<div class="w-48">
+			<SearchSelect
+				aria-label={t('asset.status')}
+				bind:value={statusId}
+				options={statusChoices}
+				allowClear
+				allLabel={t('asset.allStatuses')}
+				onchange={() => load(1)}
+			/>
+		</div>
+		<div class="w-48">
+			<SearchSelect
+				aria-label={t('asset.location')}
+				bind:value={locationId}
+				options={locationChoices}
+				allowClear
+				allLabel={t('asset.allLocations')}
+				onchange={() => load(1)}
+			/>
+		</div>
+		<div class="w-48">
+			<SearchSelect
+				aria-label={t('asset.department')}
+				bind:value={departmentId}
+				options={departmentChoices}
+				allowClear
+				allLabel={t('asset.allDepartments')}
+				onchange={() => load(1)}
+			/>
+		</div>
+		<div class="w-56">
+			<SearchSelect
+				aria-label={t('asset.product')}
+				bind:value={productId}
+				options={productChoices}
+				allowClear
+				allLabel={t('asset.allProducts')}
+				onchange={() => load(1)}
+			/>
+		</div>
 		<Button type="submit" variant="outline">{t('table.search')}</Button>
 	</form>
 

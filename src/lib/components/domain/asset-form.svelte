@@ -15,7 +15,9 @@
 	import { createAsset, updateAsset, type Asset } from '#lib/api/assets.js';
 	import type { Lookup } from '#lib/api/lookups.js';
 	import type { Product } from '#lib/api/products.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { t } from '#lib/i18n/index.js';
+	import SearchSelect from '#lib/components/domain/search-select.svelte';
+	import { lookupOptions, productOptions } from '#lib/config/select-options.js';
 
 	let {
 		asset = null,
@@ -61,8 +63,18 @@
 	let saving = $state(false);
 	let error = $state<string | null>(null);
 
+	const productChoices = $derived(productOptions(products));
+	const departmentChoices = $derived(lookupOptions(departments));
+	const statusChoices = $derived(lookupOptions(statuses));
+	const locationChoices = $derived(lookupOptions(locations));
+	const supplierChoices = $derived(lookupOptions(suppliers));
+
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
+		if (!productId || !departmentId) {
+			error = t('dynamicSelect.required');
+			return;
+		}
 		saving = true;
 		error = null;
 		try {
@@ -134,37 +146,21 @@
 					</Field>
 					<Field>
 						<FieldLabel for="asset-product">{t('asset.product')} *</FieldLabel>
-						<select
+						<SearchSelect
 							id="asset-product"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+							bind:value={productId}
+							options={productChoices}
 							required
-							value={productId}
-							onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-								(productId = event.currentTarget.value)}
-						>
-							<option value="">—</option>
-							{#each products as item (item.id)}
-								<option value={item.id}>
-									{resolveI18n(item.translations, undefined, item.name)}
-								</option>
-							{/each}
-						</select>
+						/>
 					</Field>
 					<Field>
 						<FieldLabel for="asset-department">{t('asset.department')} *</FieldLabel>
-						<select
+						<SearchSelect
 							id="asset-department"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+							bind:value={departmentId}
+							options={departmentChoices}
 							required
-							value={departmentId}
-							onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-								(departmentId = event.currentTarget.value)}
-						>
-							<option value="">—</option>
-							{#each departments as item (item.id)}
-								<option value={item.id}>{resolveI18n(item.translations)}</option>
-							{/each}
-						</select>
+						/>
 					</Field>
 					<Field>
 						<FieldLabel for="asset-tag">{t('asset.tag')}</FieldLabel>
@@ -178,48 +174,33 @@
 					</Field>
 					<Field>
 						<FieldLabel for="asset-status">{t('asset.status')}</FieldLabel>
-						<select
+						<SearchSelect
 							id="asset-status"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-							value={statusId}
-							onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-								(statusId = event.currentTarget.value)}
-						>
-							<option value="">{t('asset.defaultStatus')}</option>
-							{#each statuses as item (item.id)}
-								<option value={item.id}>{resolveI18n(item.translations)}</option>
-							{/each}
-						</select>
+							bind:value={statusId}
+							options={statusChoices}
+							allowClear
+							allLabel={t('asset.defaultStatus')}
+						/>
 					</Field>
 					<Field>
 						<FieldLabel for="asset-location">{t('asset.location')}</FieldLabel>
-						<select
+						<SearchSelect
 							id="asset-location"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-							value={locationId}
-							onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-								(locationId = event.currentTarget.value)}
-						>
-							<option value="">—</option>
-							{#each locations as item (item.id)}
-								<option value={item.id}>{resolveI18n(item.translations)}</option>
-							{/each}
-						</select>
+							bind:value={locationId}
+							options={locationChoices}
+							allowClear
+							allLabel="—"
+						/>
 					</Field>
 					<Field>
 						<FieldLabel for="asset-supplier">{t('asset.supplier')}</FieldLabel>
-						<select
+						<SearchSelect
 							id="asset-supplier"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-							value={supplierId}
-							onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-								(supplierId = event.currentTarget.value)}
-						>
-							<option value="">—</option>
-							{#each suppliers as item (item.id)}
-								<option value={item.id}>{resolveI18n(item.translations)}</option>
-							{/each}
-						</select>
+							bind:value={supplierId}
+							options={supplierChoices}
+							allowClear
+							allLabel="—"
+						/>
 					</Field>
 					<Field>
 						<FieldLabel for="asset-serial">{t('asset.serial')}</FieldLabel>

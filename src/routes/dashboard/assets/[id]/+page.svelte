@@ -27,7 +27,8 @@
 	import { returnAccessory } from '#lib/api/accessories.js';
 	import { listLookups, type Lookup } from '#lib/api/lookups.js';
 	import { listProducts, type Product } from '#lib/api/products.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { t } from '#lib/i18n/index.js';
+	import { lookupOptions } from '#lib/config/select-options.js';
 	import { session } from '#lib/stores/session.svelte.js';
 	import { formatDate } from '#lib/utils.js';
 	import { Button } from '#lib/components/ui/button/index.js';
@@ -38,6 +39,8 @@
 	import * as Sheet from '#lib/components/ui/sheet/index.js';
 	import * as Table from '#lib/components/ui/table/index.js';
 	import AssetForm from '#lib/components/domain/asset-form.svelte';
+	import SearchSelect from '#lib/components/domain/search-select.svelte';
+	import UserSelect from '#lib/components/domain/user-select.svelte';
 	import StatusBadge from '#lib/components/domain/status-badge.svelte';
 	import AttachmentPanel from '#lib/components/domain/attachment-panel.svelte';
 
@@ -68,6 +71,10 @@
 	let departmentId = $state('');
 	let statusId = $state('');
 	let notes = $state('');
+
+	const locationChoices = $derived(lookupOptions(locations));
+	const departmentChoices = $derived(lookupOptions(departments));
+	const statusChoices = $derived(lookupOptions(statuses));
 	let submitting = $state(false);
 
 	let format = $state<LabelFormat>('svg');
@@ -472,69 +479,57 @@
 									{#if target === 'user'}
 										<Field class="min-w-64">
 											<FieldLabel for="custody-user">{t('custody.userId')}</FieldLabel>
-											<Input id="custody-user" bind:value={userId} placeholder="UUID" required />
+											<UserSelect
+												label={t('custody.userId')}
+												value={userId}
+												onchange={(value) => (userId = value)}
+											/>
 										</Field>
 										<p class="text-xs text-muted-foreground">{t('custody.userHint')}</p>
 									{:else}
 										<Field class="min-w-48">
 											<FieldLabel for="custody-location">{t('custody.location')}</FieldLabel>
-											<select
+											<SearchSelect
 												id="custody-location"
-												class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 												bind:value={locationId}
+												options={locationChoices}
 												required
-											>
-												<option value="">—</option>
-												{#each locations as item (item.id)}
-													<option value={item.id}>{resolveI18n(item.translations)}</option>
-												{/each}
-											</select>
+											/>
 										</Field>
 									{/if}
 								{:else}
 									<Field class="min-w-48">
 										<FieldLabel for="custody-location">{t('custody.location')}</FieldLabel>
-										<select
+										<SearchSelect
 											id="custody-location"
-											class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 											bind:value={locationId}
+											options={locationChoices}
 											required={action === 'transfer'}
-										>
-											<option value="">—</option>
-											{#each locations as item (item.id)}
-												<option value={item.id}>{resolveI18n(item.translations)}</option>
-											{/each}
-										</select>
+										/>
 									</Field>
 									{#if action === 'transfer'}
 										<Field class="min-w-48">
 											<FieldLabel for="custody-department">{t('asset.department')}</FieldLabel>
-											<select
+											<SearchSelect
 												id="custody-department"
-												class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 												bind:value={departmentId}
-											>
-												<option value="">—</option>
-												{#each departments as item (item.id)}
-													<option value={item.id}>{resolveI18n(item.translations)}</option>
-												{/each}
-											</select>
+												options={departmentChoices}
+												allowClear
+												allLabel="—"
+											/>
 										</Field>
 									{/if}
 								{/if}
 
 								<Field class="min-w-40">
 									<FieldLabel for="custody-status">{t('asset.status')}</FieldLabel>
-									<select
+									<SearchSelect
 										id="custody-status"
-										class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 										bind:value={statusId}
-									>
-										<option value="">—</option>
-										{#each statuses as item (item.id)}
-											<option value={item.id}>{resolveI18n(item.translations)}</option>
-										{/each}
-									</select>
+										options={statusChoices}
+										allowClear
+										allLabel="—"
+									/>
 								</Field>
 								<Field class="min-w-48 flex-1">
 									<FieldLabel for="custody-notes">{t('lookup.notes')}</FieldLabel>

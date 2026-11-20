@@ -12,9 +12,11 @@
 		type Maintenance
 	} from '#lib/api/maintenances.js';
 	import type { Lookup } from '#lib/api/lookups.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { t } from '#lib/i18n/index.js';
+	import { lookupOptions } from '#lib/config/select-options.js';
 	import AssetSelect from '#lib/components/domain/asset-select.svelte';
 	import UserSelect from '#lib/components/domain/user-select.svelte';
+	import SearchSelect from '#lib/components/domain/search-select.svelte';
 
 	let {
 		maintenance = null,
@@ -45,12 +47,18 @@
 	let error = $state<string | null>(null);
 	let fieldErrors = $state<Record<string, string>>({});
 
+	const supplierChoices = $derived(lookupOptions(suppliers));
+
 	const maintenanceTypes = ['repair', 'preventive', 'inspection', 'other'];
 	const priorities = ['low', 'medium', 'high', 'critical'];
 	const currencies = ['USD', 'EUR', 'GBP', 'MAD', 'AED', 'SAR'];
 
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
+		if (!assetId) {
+			error = t('dynamicSelect.required');
+			return;
+		}
 		saving = true;
 		error = null;
 		fieldErrors = {};
@@ -168,16 +176,13 @@
 
 					<Field>
 						<FieldLabel for="maintenance-supplier">{t('lookup.suppliers')}</FieldLabel>
-						<select
+						<SearchSelect
 							id="maintenance-supplier"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 							bind:value={supplierId}
-						>
-							<option value="">—</option>
-							{#each suppliers as supplier (supplier.id)}
-								<option value={supplier.id}>{resolveI18n(supplier.translations)}</option>
-							{/each}
-						</select>
+							options={supplierChoices}
+							allowClear
+							allLabel="—"
+						/>
 					</Field>
 
 					<Field>

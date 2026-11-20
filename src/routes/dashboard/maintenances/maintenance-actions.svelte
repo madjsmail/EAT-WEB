@@ -16,8 +16,10 @@
 		startMaintenance,
 		type Maintenance
 	} from '#lib/api/maintenances.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { t } from '#lib/i18n/index.js';
+	import { lookupOptions } from '#lib/config/select-options.js';
 	import { session } from '#lib/stores/session.svelte.js';
+	import SearchSelect from '#lib/components/domain/search-select.svelte';
 
 	let {
 		maintenance,
@@ -39,6 +41,8 @@
 	let restoreStatusId = $state('');
 	let cancelReason = $state('');
 	let statuses = $state<Lookup[]>([]);
+
+	const statusChoices = $derived(lookupOptions(statuses));
 
 	async function start() {
 		busy = true;
@@ -173,16 +177,13 @@
 					</Field>
 					<Field>
 						<FieldLabel for="completion-status">{t('maintenance.restoreStatus')}</FieldLabel>
-						<select
+						<SearchSelect
 							id="completion-status"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 							bind:value={restoreStatusId}
-						>
-							<option value="">{t('maintenance.previousStatus')}</option>
-							{#each statuses as status (status.id)}
-								<option value={status.id}>{resolveI18n(status.translations)}</option>
-							{/each}
-						</select>
+							options={statusChoices}
+							allowClear
+							allLabel={t('maintenance.previousStatus')}
+						/>
 					</Field>
 				</div>
 				<div class="flex justify-end gap-2 border-t p-4">

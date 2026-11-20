@@ -8,10 +8,12 @@
 	import { Field, FieldGroup, FieldLabel } from '#lib/components/ui/field/index.js';
 	import TranslationInputs from '#lib/components/domain/translation-inputs.svelte';
 	import JsonObjectEditor from '#lib/components/domain/json-object-editor.svelte';
+	import SearchSelect, { type SelectOption } from '#lib/components/domain/search-select.svelte';
+	import { lookupOptions } from '#lib/config/select-options.js';
 	import { ApiError } from '#lib/api/client.js';
 	import { createProduct, updateProduct, type EolType, type Product } from '#lib/api/products.js';
 	import type { Lookup } from '#lib/api/lookups.js';
-	import { resolveI18n, t, type Translations } from '#lib/i18n/index.js';
+	import { t, type Translations } from '#lib/i18n/index.js';
 
 	let {
 		product = null,
@@ -38,6 +40,14 @@
 		'individual'
 	];
 
+	const categoryOptions = $derived(lookupOptions(categories, true));
+	const manufacturerOptions = $derived(lookupOptions(manufacturers));
+	const supplierOptions = $derived(lookupOptions(suppliers));
+	const depreciationOptions = $derived(lookupOptions(depreciationModels));
+	const eolOptions = $derived(
+		eolTypes.map((type) => ({ value: type, label: t(`product.eol.${type}`) }))
+	);
+
 	const initial = untrack(() => product);
 
 	let translations = $state<Translations>({
@@ -50,7 +60,7 @@
 	let supplierId = $state(initial?.default_supplier_id ?? '');
 	let depreciationId = $state(initial?.depreciation_model_id ?? '');
 	let modelCode = $state(initial?.model_code ?? '');
-	let eolType = $state<EolType | ''>(initial?.eol_type ?? '');
+	let eolType = $state<string>(initial?.eol_type ?? '');
 	let eolDate = $state(initial?.eol_date?.slice(0, 10) ?? '');
 	let purchaseCost = $state(
 		initial?.default_purchase_cost == null ? '' : String(initial?.default_purchase_cost)
@@ -70,6 +80,10 @@
 
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
+		if (!categoryId) {
+			error = t('dynamicSelect.required');
+			return;
+		}
 		saving = true;
 		error = null;
 		try {
@@ -80,7 +94,7 @@
 				default_supplier_id: supplierId || null,
 				depreciation_model_id: depreciationId || null,
 				model_code: modelCode || null,
-				eol_type: eolType || null,
+				eol_type: (eolType || null) as EolType | null,
 				eol_date: eolDateVisible && eolDate ? eolDate : null,
 				default_purchase_cost: purchaseCost === '' ? null : purchaseCost,
 				default_currency: currency || 'USD',
@@ -133,36 +147,21 @@
 					<FieldGroup class="grid gap-4 sm:grid-cols-2">
 						<Field>
 							<FieldLabel for="product-category">{t('product.category')} *</FieldLabel>
-							<select
+							<SearchSelect
 								id="product-category"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={categoryId}
+								bind:value={categoryId}
+								options={categoryOptions}
 								required
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(categoryId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each categories as item (item.id)}
-									<option value={item.id}>
-										{resolveI18n(item.translations, undefined, item.code ?? '')}
-									</option>
-								{/each}
-							</select>
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="product-manufacturer">{t('product.manufacturer')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="product-manufacturer"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={manufacturerId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(manufacturerId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each manufacturers as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={manufacturerId}
+								options={manufacturerOptions}
+								allowClear
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="product-model-code">{t('product.modelCode')}</FieldLabel>
@@ -181,18 +180,12 @@
 					<FieldGroup class="grid gap-4 sm:grid-cols-2">
 						<Field>
 							<FieldLabel for="product-eol-type">{t('product.eolType')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="product-eol-type"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={eolType}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(eolType = event.currentTarget.value as EolType | '')}
-							>
-								<option value="">—</option>
-								{#each eolTypes as type (type)}
-									<option value={type}>{t(`product.eol.${type}`)}</option>
-								{/each}
-							</select>
+								bind:value={eolType}
+								options={eolOptions}
+								allowClear
+							/>
 						</Field>
 						{#if eolDateVisible}
 							<Field>
@@ -209,18 +202,12 @@
 						{/if}
 						<Field>
 							<FieldLabel for="product-depreciation">{t('product.depreciationModel')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="product-depreciation"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={depreciationId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(depreciationId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each depreciationModels as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={depreciationId}
+								options={depreciationOptions}
+								allowClear
+							/>
 						</Field>
 						<Field>
 							<label class="flex items-center gap-2 text-sm">
@@ -239,18 +226,12 @@
 					<FieldGroup class="grid gap-4 sm:grid-cols-2">
 						<Field>
 							<FieldLabel for="product-supplier">{t('product.defaultSupplier')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="product-supplier"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={supplierId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(supplierId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each suppliers as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={supplierId}
+								options={supplierOptions}
+								allowClear
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="product-cost">{t('product.purchaseCost')}</FieldLabel>

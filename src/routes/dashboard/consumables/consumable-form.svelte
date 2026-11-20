@@ -12,10 +12,12 @@
 		FieldLabel
 	} from '#lib/components/ui/field/index.js';
 	import TranslationInputs from '#lib/components/domain/translation-inputs.svelte';
+	import SearchSelect from '#lib/components/domain/search-select.svelte';
 	import { ApiError } from '#lib/api/client.js';
 	import { createConsumable, updateConsumable, type Consumable } from '#lib/api/consumables.js';
 	import type { Lookup } from '#lib/api/lookups.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { lookupOptions } from '#lib/config/select-options.js';
+	import { t } from '#lib/i18n/index.js';
 	import type { Translations } from '#lib/i18n/index.js';
 
 	let {
@@ -59,8 +61,17 @@
 	let saving = $state(false);
 	let error = $state<string | null>(null);
 
+	const categoryChoices = $derived(lookupOptions(categories, true));
+	const manufacturerChoices = $derived(lookupOptions(manufacturers));
+	const locationChoices = $derived(lookupOptions(locations));
+	const supplierChoices = $derived(lookupOptions(suppliers));
+
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
+		if (!categoryId) {
+			error = t('dynamicSelect.required');
+			return;
+		}
 		saving = true;
 		error = null;
 		try {
@@ -122,36 +133,22 @@
 					<FieldGroup class="grid gap-4 sm:grid-cols-2">
 						<Field>
 							<FieldLabel for="consumable-category">{t('consumable.category')} *</FieldLabel>
-							<select
+							<SearchSelect
 								id="consumable-category"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+								bind:value={categoryId}
+								options={categoryChoices}
 								required
-								value={categoryId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(categoryId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each categories as item (item.id)}
-									<option value={item.id}>
-										{resolveI18n(item.translations, undefined, item.code ?? '')}
-									</option>
-								{/each}
-							</select>
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="consumable-manufacturer">{t('consumable.manufacturer')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="consumable-manufacturer"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={manufacturerId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(manufacturerId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each manufacturers as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={manufacturerId}
+								options={manufacturerChoices}
+								allowClear
+								allLabel="—"
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="consumable-model">{t('consumable.modelNumber')}</FieldLabel>
@@ -164,18 +161,13 @@
 						</Field>
 						<Field>
 							<FieldLabel for="consumable-location">{t('consumable.location')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="consumable-location"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={locationId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(locationId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each locations as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={locationId}
+								options={locationChoices}
+								allowClear
+								allLabel="—"
+							/>
 						</Field>
 					</FieldGroup>
 				</section>
@@ -224,18 +216,13 @@
 					<FieldGroup class="grid gap-4 sm:grid-cols-2">
 						<Field>
 							<FieldLabel for="consumable-supplier">{t('consumable.supplier')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="consumable-supplier"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={supplierId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(supplierId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each suppliers as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={supplierId}
+								options={supplierChoices}
+								allowClear
+								allLabel="—"
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="consumable-cost">{t('consumable.purchaseCost')}</FieldLabel>

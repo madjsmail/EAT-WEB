@@ -7,6 +7,8 @@
 	import { Checkbox } from '#lib/components/ui/checkbox/index.js';
 	import { Field, FieldDescription, FieldLabel } from '#lib/components/ui/field/index.js';
 	import TranslationInputs from '#lib/components/domain/translation-inputs.svelte';
+	import SearchSelect from '#lib/components/domain/search-select.svelte';
+	import { lookupOptions } from '#lib/config/select-options.js';
 	import { ApiError } from '#lib/api/client.js';
 	import { createLookup, updateLookup, type Lookup, type LookupPayload } from '#lib/api/lookups.js';
 	import type { LookupConfig } from '#lib/config/lookups.js';
@@ -54,6 +56,7 @@
 	}
 
 	const parentOptions = $derived(locations.filter((location) => location.id !== item?.id));
+	const parentChoices = $derived(lookupOptions(parentOptions));
 
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
@@ -134,20 +137,15 @@
 										{/each}
 									</select>
 								{:else if field.type === 'parent'}
-									<select
+									<SearchSelect
 										id="lookup-{field.key}"
-										class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 										value={textValue(field.key)}
-										onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-											(values[field.key] = event.currentTarget.value)}
-									>
-										<option value="">—</option>
-										{#each parentOptions as location (location.id)}
-											<option value={location.id}>
-												{location.translations?.en ?? location.code ?? location.id}
-											</option>
-										{/each}
-									</select>
+										options={parentChoices}
+										onchange={(value) => (values[field.key] = value)}
+										allowClear
+										allLabel="—"
+										aria-label={t(field.labelKey)}
+									/>
 								{:else if field.type === 'textarea'}
 									<textarea
 										id="lookup-{field.key}"

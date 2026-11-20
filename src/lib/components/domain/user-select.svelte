@@ -4,15 +4,18 @@
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { ApiError } from '#lib/api/client.js';
 	import { searchUsers, userLabel, type UserSummary } from '#lib/api/users.js';
+	import SearchSelect, { type SelectOption } from '#lib/components/domain/search-select.svelte';
 
 	let {
 		value = '',
 		label,
-		onchange
+		onchange,
+		disabled = false
 	}: {
 		value?: string;
 		label: string;
 		onchange: (userId: string) => void;
+		disabled?: boolean;
 	} = $props();
 
 	let query = $state('');
@@ -42,7 +45,27 @@
 		void search(query);
 	});
 
-	const selected = $derived(users.find((user) => user.id === value) ?? null);
+	let chosen = $state<UserSummary | null>(null);
+
+	$effect(() => {
+		if (!value) {
+			chosen = null;
+			return;
+		}
+		const found = users.find((user) => user.id === value);
+		if (found) chosen = found;
+	});
+
+	const options = $derived<SelectOption[]>([
+		...(chosen && !users.some((user) => user.id === chosen?.id)
+			? [{ value: chosen.id, label: userLabel(chosen), keywords: [chosen.email] }]
+			: []),
+		...users.map((user) => ({
+			value: user.id,
+			label: userLabel(user),
+			keywords: [user.email]
+		}))
+	]);
 </script>
 
 <div class="flex flex-col gap-1.5">
@@ -50,6 +73,7 @@
 		class="h-8 text-sm"
 		placeholder={t('userSelect.search')}
 		aria-label={t('userSelect.searchLabel', { label })}
+		{disabled}
 		bind:value={query}
 	/>
 	{#if unavailable}
@@ -57,26 +81,22 @@
 			class="h-8 font-mono text-xs"
 			placeholder="UUID"
 			aria-label={label}
-			value={value}
+			{disabled}
+			{value}
 			oninput={(event: Event & { currentTarget: HTMLInputElement }) =>
 				onchange(event.currentTarget.value)}
 		/>
 	{:else}
-		<select
-			class="h-8 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+		<SearchSelect
 			aria-label={label}
 			value={value}
-			onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-				onchange(event.currentTarget.value)}
-		>
-			<option value="">{t('userSelect.any')}</option>
-			{#if selected && !users.some((user) => user.id === selected.id)}
-				<option value={selected.id}>{userLabel(selected)}</option>
-			{/if}
-			{#each users as user (user.id)}
-				<option value={user.id}>{userLabel(user)}</option>
-			{/each}
-		</select>
+			{options}
+			placeholder={t('dynamicSelect.select')}
+			{disabled}
+			allowClear
+			allLabel={t('userSelect.any')}
+			{onchange}
+		/>
 	{/if}
 	{#if loading}
 		<span class="text-xs text-muted-foreground">{t('table.loading')}</span>

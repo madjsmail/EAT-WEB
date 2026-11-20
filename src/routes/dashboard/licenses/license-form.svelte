@@ -12,6 +12,7 @@
 		FieldLabel
 	} from '#lib/components/ui/field/index.js';
 	import TranslationInputs from '#lib/components/domain/translation-inputs.svelte';
+	import SearchSelect from '#lib/components/domain/search-select.svelte';
 	import { ApiError } from '#lib/api/client.js';
 	import {
 		createLicense,
@@ -20,7 +21,8 @@
 		type LicenseType
 	} from '#lib/api/licenses.js';
 	import type { Lookup } from '#lib/api/lookups.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { lookupOptions } from '#lib/config/select-options.js';
+	import { t } from '#lib/i18n/index.js';
 	import type { Translations } from '#lib/i18n/index.js';
 
 	let {
@@ -59,6 +61,9 @@
 	let isArchived = $state(initial?.is_archived ?? false);
 	let saving = $state(false);
 	let error = $state<string | null>(null);
+
+	const manufacturerChoices = $derived(lookupOptions(manufacturers));
+	const supplierChoices = $derived(lookupOptions(suppliers));
 
 	const minSeats = $derived(initial?.active_seats ?? 0);
 
@@ -123,33 +128,23 @@
 					<FieldGroup class="grid gap-4 sm:grid-cols-2">
 						<Field>
 							<FieldLabel for="license-manufacturer">{t('license.manufacturer')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="license-manufacturer"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={manufacturerId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(manufacturerId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each manufacturers as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={manufacturerId}
+								options={manufacturerChoices}
+								allowClear
+								allLabel="—"
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="license-supplier">{t('license.supplier')}</FieldLabel>
-							<select
+							<SearchSelect
 								id="license-supplier"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								value={supplierId}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(supplierId = event.currentTarget.value)}
-							>
-								<option value="">—</option>
-								{#each suppliers as item (item.id)}
-									<option value={item.id}>{resolveI18n(item.translations)}</option>
-								{/each}
-							</select>
+								bind:value={supplierId}
+								options={supplierChoices}
+								allowClear
+								allLabel="—"
+							/>
 						</Field>
 						<Field>
 							<FieldLabel for="license-type">{t('license.type')} *</FieldLabel>

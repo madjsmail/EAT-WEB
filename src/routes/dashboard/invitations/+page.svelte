@@ -20,6 +20,7 @@
 	import { Input } from '#lib/components/ui/input/index.js';
 	import * as Select from '#lib/components/ui/select/index.js';
 	import { Skeleton } from '#lib/components/ui/skeleton/index.js';
+	import SearchSelect, { type SelectOption } from '#lib/components/domain/search-select.svelte';
 	import * as Table from '#lib/components/ui/table/index.js';
 	import { t } from '#lib/i18n/index.js';
 	import { session } from '#lib/stores/session.svelte.js';
@@ -37,6 +38,10 @@
 	let creating = $state(false);
 	let formError = $state<string | null>(null);
 	let created = $state<InvitationResponse | null>(null);
+
+	const roleChoices = $derived<SelectOption[]>(
+		roles.map((role) => ({ value: role.id, label: role.name, keywords: [role.code] }))
+	);
 
 	const canCreate = $derived(session.has('invitations.create'));
 	const canRevoke = $derived(session.has('invitations.revoke'));
@@ -162,16 +167,14 @@
 
 					<Field>
 						<FieldLabel for="invite-role">{t('invitations.role')}</FieldLabel>
-						<Select.Root type="single" bind:value={roleId} disabled={creating || rolesError}>
-							<Select.Trigger id="invite-role" class="w-full">
-								<Select.Value placeholder={t('invitations.role')} />
-							</Select.Trigger>
-							<Select.Content>
-								{#each roles as role (role.id)}
-									<Select.Item value={role.id} label={role.name}>{role.name}</Select.Item>
-								{/each}
-							</Select.Content>
-						</Select.Root>
+						<SearchSelect
+							id="invite-role"
+							bind:value={roleId}
+							options={roleChoices}
+							disabled={creating || rolesError}
+							required
+							aria-label={t('invitations.role')}
+						/>
 					</Field>
 
 					<Field>

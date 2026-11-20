@@ -8,7 +8,8 @@
 	import { ApiError, type Pagination } from '#lib/api/client.js';
 	import { deleteAccessory, listAccessories, type Accessory } from '#lib/api/accessories.js';
 	import { listLookups, type Lookup } from '#lib/api/lookups.js';
-	import { resolveI18n, t } from '#lib/i18n/index.js';
+	import { t } from '#lib/i18n/index.js';
+	import { lookupOptions } from '#lib/config/select-options.js';
 	import { session } from '#lib/stores/session.svelte.js';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import { Badge } from '#lib/components/ui/badge/index.js';
@@ -17,6 +18,7 @@
 	import * as Table from '#lib/components/ui/table/index.js';
 	import TablePagination from '#lib/components/domain/table-pagination.svelte';
 	import AccessoryForm from './accessory-form.svelte';
+	import SearchSelect, { type SelectOption } from '#lib/components/domain/search-select.svelte';
 
 	const canWrite = $derived(session.has('accessories.write'));
 
@@ -37,6 +39,13 @@
 	let categoryId = $state('');
 	let manufacturerId = $state('');
 	let archived = $state('');
+
+	const categoryChoices = $derived(lookupOptions(categories));
+	const manufacturerChoices = $derived(lookupOptions(manufacturers));
+	const archivedChoices: SelectOption[] = [
+		{ value: 'false', label: t('accessory.activeOnly') },
+		{ value: 'true', label: t('accessory.archivedOnly') }
+	];
 
 	async function load(page = 1) {
 		loading = true;
@@ -125,38 +134,36 @@
 
 	<form class="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3" onsubmit={search}>
 		<Input class="sm:max-w-64" placeholder={t('accessory.searchPlaceholder')} bind:value={q} />
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('accessory.category')}
-			bind:value={categoryId}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('accessory.allCategories')}</option>
-			{#each categories as item (item.id)}
-				<option value={item.id}>{resolveI18n(item.translations)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('accessory.manufacturer')}
-			bind:value={manufacturerId}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('accessory.allManufacturers')}</option>
-			{#each manufacturers as item (item.id)}
-				<option value={item.id}>{resolveI18n(item.translations)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-			aria-label={t('accessory.isArchived')}
-			bind:value={archived}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('accessory.allStatuses')}</option>
-			<option value="false">{t('accessory.activeOnly')}</option>
-			<option value="true">{t('accessory.archivedOnly')}</option>
-		</select>
+		<div class="w-48">
+			<SearchSelect
+				aria-label={t('accessory.category')}
+				bind:value={categoryId}
+				options={categoryChoices}
+				allowClear
+				allLabel={t('accessory.allCategories')}
+				onchange={() => load(1)}
+			/>
+		</div>
+		<div class="w-48">
+			<SearchSelect
+				aria-label={t('accessory.manufacturer')}
+				bind:value={manufacturerId}
+				options={manufacturerChoices}
+				allowClear
+				allLabel={t('accessory.allManufacturers')}
+				onchange={() => load(1)}
+			/>
+		</div>
+		<div class="w-40">
+			<SearchSelect
+				aria-label={t('accessory.isArchived')}
+				bind:value={archived}
+				options={archivedChoices}
+				allowClear
+				allLabel={t('accessory.allStatuses')}
+				onchange={() => load(1)}
+			/>
+		</div>
 		<Button type="submit" variant="outline">{t('table.search')}</Button>
 	</form>
 
