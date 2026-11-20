@@ -1,68 +1,37 @@
 <script lang="ts">
-	import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
-	import * as Collapsible from "#lib/components/ui/collapsible/index.js";
+	import { page } from "$app/state";
 	import * as Sidebar from "#lib/components/ui/sidebar/index.js";
-	import type { Component } from "svelte";
+	import { t } from "#lib/i18n/index.js";
+	import type { NavLink } from "#lib/config/navigation.js";
 
-	let {
-		items,
-	}: {
-		items: {
-			title: string;
-			url: string;
-			icon: Component;
-			isActive?: boolean;
-			items?: {
-				title: string;
-				url: string;
-			}[];
-		}[];
-	} = $props();
+	let { label, links }: { label: string; links: NavLink[] } = $props();
+
+	function isActive(href: string) {
+		const path = page.url.pathname.replace(/\/$/, "") || "/";
+		return path === href || (href !== "/dashboard" && path.startsWith(`${href}/`));
+	}
 </script>
 
 <Sidebar.Group>
-	<Sidebar.GroupLabel>Platform</Sidebar.GroupLabel>
-	<Sidebar.Menu>
-		{#each items as item (item.title)}
-			<Collapsible.Root open={item.isActive}>
-				{#snippet child({ props })}
-					<Sidebar.MenuItem {...props}>
-						<Sidebar.MenuButton tooltipContent={item.title}>
-							{#snippet child({ props })}
-								<a href={item.url} {...props}>
-									<item.icon />
-									<span>{item.title}</span>
-								</a>
-							{/snippet}
-						</Sidebar.MenuButton>
-						{#if item.items?.length}
-							<Collapsible.Trigger>
-								{#snippet child({ props })}
-									<Sidebar.MenuAction {...props} class="data-[state=open]:rotate-90">
-										<ChevronRightIcon />
-										<span class="sr-only">Toggle</span>
-									</Sidebar.MenuAction>
-								{/snippet}
-							</Collapsible.Trigger>
-							<Collapsible.Content>
-								<Sidebar.MenuSub>
-									{#each item.items as subItem (subItem.title)}
-										<Sidebar.MenuSubItem>
-											<Sidebar.MenuSubButton>
-												{#snippet child({ props })}
-													<a href={subItem.url} {...props}>
-														<span>{subItem.title}</span>
-													</a>
-												{/snippet}
-											</Sidebar.MenuSubButton>
-										</Sidebar.MenuSubItem>
-									{/each}
-								</Sidebar.MenuSub>
-							</Collapsible.Content>
-						{/if}
-					</Sidebar.MenuItem>
-				{/snippet}
-			</Collapsible.Root>
-		{/each}
-	</Sidebar.Menu>
+	<Sidebar.GroupLabel>{label}</Sidebar.GroupLabel>
+	{#if links.length}
+		<Sidebar.Menu>
+			{#each links as item (item.href)}
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton isActive={isActive(item.href)} tooltipContent={t(item.titleKey)}>
+						{#snippet child({ props })}
+							<a
+								href={item.href}
+								aria-current={isActive(item.href) ? "page" : undefined}
+								{...props}
+							>
+								<item.icon />
+								<span>{t(item.titleKey)}</span>
+							</a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+			{/each}
+		</Sidebar.Menu>
+	{/if}
 </Sidebar.Group>
