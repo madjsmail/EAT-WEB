@@ -8,6 +8,7 @@
 	import { Field, FieldDescription, FieldLabel } from '#lib/components/ui/field/index.js';
 	import TranslationInputs from '#lib/components/domain/translation-inputs.svelte';
 	import SearchSelect from '#lib/components/domain/search-select.svelte';
+	import EnumSelect from '#lib/components/domain/enum-select.svelte';
 	import { lookupOptions } from '#lib/config/select-options.js';
 	import { ApiError } from '#lib/api/client.js';
 	import { createLookup, updateLookup, type Lookup, type LookupPayload } from '#lib/api/lookups.js';
@@ -121,21 +122,17 @@
 							{:else}
 								<FieldLabel for="lookup-{field.key}">{t(field.labelKey)}</FieldLabel>
 								{#if field.type === 'select'}
-									<select
-										id="lookup-{field.key}"
-										class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-										value={textValue(field.key)}
-										onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-											(values[field.key] = event.currentTarget.value)}
-										required={field.required}
-									>
-										<option value="">—</option>
-										{#each field.options ?? [] as option (option.value)}
-											<option value={option.value}>
-												{option.labelKey ? t(option.labelKey) : t(`lookup.enum.${option.value}`)}
-											</option>
-										{/each}
-									</select>
+									<EnumSelect
+						id="lookup-{field.key}"
+						value={textValue(field.key)}
+						onchange={(value) => (values[field.key] = value)}
+						options={(field.options ?? []).map((option) => ({
+							value: option.value,
+							label: option.labelKey ? t(option.labelKey) : t(`lookup.enum.${option.value}`)
+						}))}
+						clearLabel="—"
+						required={field.required}
+					/>
 								{:else if field.type === 'parent'}
 									<SearchSelect
 										id="lookup-{field.key}"

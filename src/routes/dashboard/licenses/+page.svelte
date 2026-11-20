@@ -17,6 +17,7 @@
 	import { Skeleton } from '#lib/components/ui/skeleton/index.js';
 	import * as Table from '#lib/components/ui/table/index.js';
 	import TablePagination from '#lib/components/domain/table-pagination.svelte';
+	import EnumSelect from '#lib/components/domain/enum-select.svelte';
 	import LicenseForm from './license-form.svelte';
 
 	const canWrite = $derived(session.has('licenses.write'));
@@ -131,27 +132,35 @@
 
 	<form class="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3" onsubmit={search}>
 		<Input class="sm:max-w-64" placeholder={t('license.searchPlaceholder')} bind:value={q} />
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+		<EnumSelect
+			id="license-expiry"
+			value={expiringInDays}
+			onchange={(value) => {
+				expiringInDays = value;
+				load(1);
+			}}
 			aria-label={t('license.expiringIn')}
-			bind:value={expiringInDays}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('license.anyExpiry')}</option>
-			<option value="30">{t('license.withinDays', { days: 30 })}</option>
-			<option value="60">{t('license.withinDays', { days: 60 })}</option>
-			<option value="90">{t('license.withinDays', { days: 90 })}</option>
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+			clearLabel={t('license.anyExpiry')}
+			options={[
+				{ value: '30', label: t('license.withinDays', { days: 30 }) },
+				{ value: '60', label: t('license.withinDays', { days: 60 }) },
+				{ value: '90', label: t('license.withinDays', { days: 90 }) }
+			]}
+		/>
+		<EnumSelect
+			id="license-archived"
+			value={archived}
+			onchange={(value) => {
+				archived = value;
+				load(1);
+			}}
 			aria-label={t('license.isArchived')}
-			bind:value={archived}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('license.allStatuses')}</option>
-			<option value="false">{t('license.activeOnly')}</option>
-			<option value="true">{t('license.archivedOnly')}</option>
-		</select>
+			clearLabel={t('license.allStatuses')}
+			options={[
+				{ value: 'false', label: t('license.activeOnly') },
+				{ value: 'true', label: t('license.archivedOnly') }
+			]}
+		/>
 		<Button type="submit" variant="outline">{t('table.search')}</Button>
 	</form>
 

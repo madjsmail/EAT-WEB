@@ -13,6 +13,7 @@
 	} from '#lib/components/ui/field/index.js';
 	import TranslationInputs from '#lib/components/domain/translation-inputs.svelte';
 	import SearchSelect from '#lib/components/domain/search-select.svelte';
+	import EnumSelect from '#lib/components/domain/enum-select.svelte';
 	import { ApiError } from '#lib/api/client.js';
 	import {
 		createLicense,
@@ -148,18 +149,16 @@
 						</Field>
 						<Field>
 							<FieldLabel for="license-type">{t('license.type')} *</FieldLabel>
-							<select
-								id="license-type"
-								class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-								required
-								value={licenseType}
-								onchange={(event: Event & { currentTarget: HTMLSelectElement }) =>
-									(licenseType = event.currentTarget.value as LicenseType)}
-							>
-								{#each licenseTypes as type (type)}
-									<option value={type}>{t(`license.type.${type}`)}</option>
-								{/each}
-							</select>
+							<EnumSelect
+							id="license-type"
+							value={licenseType}
+							onchange={(value) => (licenseType = value as LicenseType)}
+							options={licenseTypes.map((type) => ({
+								value: type,
+								label: t(`license.type.${type}`)
+							}))}
+							required
+						/>
 						</Field>
 						<Field>
 							<FieldLabel for="license-seats">{t('license.totalSeats')} *</FieldLabel>

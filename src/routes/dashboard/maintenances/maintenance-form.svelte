@@ -17,6 +17,7 @@
 	import AssetSelect from '#lib/components/domain/asset-select.svelte';
 	import UserSelect from '#lib/components/domain/user-select.svelte';
 	import SearchSelect from '#lib/components/domain/search-select.svelte';
+	import EnumSelect from '#lib/components/domain/enum-select.svelte';
 
 	let {
 		maintenance = null,
@@ -150,28 +151,30 @@
 
 					<Field>
 						<FieldLabel for="maintenance-type">{t('maintenance.type')} *</FieldLabel>
-						<select
-							id="maintenance-type"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-							bind:value={maintenanceType}
-						>
-							{#each maintenanceTypes as type (type)}
-								<option value={type}>{t(`maintenance.type.${type}`)}</option>
-							{/each}
-						</select>
+						<EnumSelect
+						id="maintenance-type"
+						value={maintenanceType}
+						onchange={(value) => (maintenanceType = value)}
+						options={maintenanceTypes.map((type) => ({
+							value: type,
+							label: t(`maintenance.type.${type}`)
+						}))}
+						required
+					/>
 					</Field>
 
 					<Field>
 						<FieldLabel for="maintenance-priority">{t('maintenance.priority')} *</FieldLabel>
-						<select
-							id="maintenance-priority"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-							bind:value={priority}
-						>
-							{#each priorities as level (level)}
-								<option value={level}>{t(`maintenance.priority.${level}`)}</option>
-							{/each}
-						</select>
+						<EnumSelect
+						id="maintenance-priority"
+						value={priority}
+						onchange={(value) => (priority = value)}
+						options={priorities.map((level) => ({
+							value: level,
+							label: t(`maintenance.priority.${level}`)
+						}))}
+						required
+					/>
 					</Field>
 
 					<Field>
@@ -211,15 +214,12 @@
 
 					<Field>
 						<FieldLabel for="maintenance-currency">{t('maintenance.currency')}</FieldLabel>
-						<select
-							id="maintenance-currency"
-							class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-							bind:value={currency}
-						>
-							{#each currencies as code (code)}
-								<option value={code}>{code}</option>
-							{/each}
-						</select>
+						<EnumSelect
+						id="maintenance-currency"
+						value={currency}
+						onchange={(value) => (currency = value)}
+						options={currencies.map((code) => ({ value: code, label: code }))}
+					/>
 					</Field>
 
 					<Field class="sm:col-span-2">

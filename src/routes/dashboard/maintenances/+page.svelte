@@ -21,6 +21,7 @@
 	import { Skeleton } from '#lib/components/ui/skeleton/index.js';
 	import * as Table from '#lib/components/ui/table/index.js';
 	import AssetSelect from '#lib/components/domain/asset-select.svelte';
+	import EnumSelect from '#lib/components/domain/enum-select.svelte';
 	import TablePagination from '#lib/components/domain/table-pagination.svelte';
 	import MaintenanceForm from './maintenance-form.svelte';
 	import MaintenanceActions from './maintenance-actions.svelte';
@@ -140,39 +141,39 @@
 		<div class="w-56">
 			<AssetSelect label={t('asset.title')} value={assetId} onchange={(id) => (assetId = id)} />
 		</div>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+		<EnumSelect
+			id="maintenance-filter-status"
+			value={status}
+			onchange={(value) => {
+				status = value;
+				load(1);
+			}}
 			aria-label={t('maintenance.status')}
-			bind:value={status}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('maintenance.allStatuses')}</option>
-			{#each statuses as value (value)}
-				<option value={value}>{t(`maintenance.status.${value}`)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+			clearLabel={t('maintenance.allStatuses')}
+			options={statuses.map((value) => ({ value, label: t(`maintenance.status.${value}`) }))}
+		/>
+		<EnumSelect
+			id="maintenance-filter-maintenanceType"
+			value={maintenanceType}
+			onchange={(value) => {
+				maintenanceType = value;
+				load(1);
+			}}
 			aria-label={t('maintenance.type')}
-			bind:value={maintenanceType}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('maintenance.allTypes')}</option>
-			{#each maintenanceTypes as value (value)}
-				<option value={value}>{t(`maintenance.type.${value}`)}</option>
-			{/each}
-		</select>
-		<select
-			class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+			clearLabel={t('maintenance.allTypes')}
+			options={maintenanceTypes.map((value) => ({ value, label: t(`maintenance.type.${value}`) }))}
+		/>
+		<EnumSelect
+			id="maintenance-filter-priority"
+			value={priority}
+			onchange={(value) => {
+				priority = value;
+				load(1);
+			}}
 			aria-label={t('maintenance.priority')}
-			bind:value={priority}
-			onchange={() => load(1)}
-		>
-			<option value="">{t('maintenance.allPriorities')}</option>
-			{#each priorities as value (value)}
-				<option value={value}>{t(`maintenance.priority.${value}`)}</option>
-			{/each}
-		</select>
+			clearLabel={t('maintenance.allPriorities')}
+			options={priorities.map((value) => ({ value, label: t(`maintenance.priority.${value}`) }))}
+		/>
 		<Button type="submit" variant="outline">{t('table.search')}</Button>
 	</form>
 

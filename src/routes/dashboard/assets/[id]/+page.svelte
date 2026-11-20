@@ -40,6 +40,7 @@
 	import * as Table from '#lib/components/ui/table/index.js';
 	import AssetForm from '#lib/components/domain/asset-form.svelte';
 	import SearchSelect from '#lib/components/domain/search-select.svelte';
+	import EnumSelect from '#lib/components/domain/enum-select.svelte';
 	import UserSelect from '#lib/components/domain/user-select.svelte';
 	import StatusBadge from '#lib/components/domain/status-badge.svelte';
 	import AttachmentPanel from '#lib/components/domain/attachment-panel.svelte';
@@ -453,28 +454,30 @@
 							<div class="flex flex-wrap items-end gap-3">
 								<Field class="w-40">
 									<FieldLabel for="custody-action">{t('custody.action')}</FieldLabel>
-									<select
-										id="custody-action"
-										class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-										bind:value={action}
-									>
-										<option value="assign">{t('custody.assign')}</option>
-										<option value="return">{t('custody.return')}</option>
-										<option value="transfer">{t('custody.transfer')}</option>
-									</select>
+									<EnumSelect
+								id="custody-action"
+								value={action}
+								onchange={(value) => (action = value as 'assign' | 'return' | 'transfer')}
+								options={[
+									{ value: 'assign', label: t('custody.assign') },
+									{ value: 'return', label: t('custody.return') },
+									{ value: 'transfer', label: t('custody.transfer') }
+								]}
+							/>
 								</Field>
 
 								{#if action === 'assign'}
 									<Field class="w-40">
 										<FieldLabel for="custody-target">{t('custody.target')}</FieldLabel>
-										<select
-											id="custody-target"
-											class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-											bind:value={target}
-										>
-											<option value="user">{t('custody.user')}</option>
-											<option value="location">{t('custody.location')}</option>
-										</select>
+										<EnumSelect
+									id="custody-target"
+									value={target}
+									onchange={(value) => (target = value as 'user' | 'location')}
+									options={[
+										{ value: 'user', label: t('custody.user') },
+										{ value: 'location', label: t('custody.location') }
+									]}
+								/>
 									</Field>
 									{#if target === 'user'}
 										<Field class="min-w-64">
@@ -616,36 +619,39 @@
 			<div class="flex flex-col gap-4 overflow-y-auto px-4 pb-4">
 				<Field>
 					<FieldLabel for="label-format">{t('label.format')}</FieldLabel>
-					<select
-						id="label-format"
-						class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-						bind:value={format}
-					>
-						<option value="svg">SVG</option>
-						<option value="png">PNG</option>
-					</select>
+					<EnumSelect
+							id="label-format"
+							value={format}
+							onchange={(value) => (format = value as LabelFormat)}
+							options={[
+								{ value: 'svg', label: 'SVG' },
+								{ value: 'png', label: 'PNG' }
+							]}
+						/>
 				</Field>
 				<Field>
 					<FieldLabel for="label-symbology">{t('label.symbology')}</FieldLabel>
-					<select
-						id="label-symbology"
-						class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-						bind:value={symbology}
-					>
-						<option value="qr">QR</option>
-						<option value="code128">Code 128</option>
-					</select>
+					<EnumSelect
+							id="label-symbology"
+							value={symbology}
+							onchange={(value) => (symbology = value as LabelSymbology)}
+							options={[
+								{ value: 'qr', label: 'QR' },
+								{ value: 'code128', label: 'Code 128' }
+							]}
+						/>
 				</Field>
 				<Field>
 					<FieldLabel for="label-data">{t('label.dataSource')}</FieldLabel>
-					<select
-						id="label-data"
-						class="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-						bind:value={dataSource}
-					>
-						<option value="asset_tag">{t('asset.tag')}</option>
-						<option value="serial_number">{t('asset.serial')}</option>
-					</select>
+					<EnumSelect
+							id="label-data"
+							value={dataSource}
+							onchange={(value) => (dataSource = value as LabelDataSource)}
+							options={[
+								{ value: 'asset_tag', label: t('asset.tag') },
+								{ value: 'serial_number', label: t('asset.serial') }
+							]}
+						/>
 				</Field>
 
 				<div
