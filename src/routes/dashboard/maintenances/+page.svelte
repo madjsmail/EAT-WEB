@@ -29,7 +29,7 @@
 	const canWrite = $derived(session.has('maintenances.write'));
 
 	const statuses = ['open', 'in_progress', 'completed', 'cancelled'];
-	const maintenanceTypes = ['repair', 'preventive', 'inspection', 'other'];
+	const maintenanceTypes = ['repair', 'preventive', 'inspection', 'corrective', 'other'];
 	const priorities = ['low', 'medium', 'high', 'critical'];
 
 	const statusTone: Record<string, string> = {
@@ -142,7 +142,7 @@
 			<AssetSelect label={t('asset.title')} value={assetId} onchange={(id) => (assetId = id)} />
 		</div>
 		<EnumSelect
-			id="maintenance-filter-status"
+			id="maintenance-filter-status" class="h-9 w-full sm:w-44"
 			value={status}
 			onchange={(value) => {
 				status = value;
@@ -153,7 +153,7 @@
 			options={statuses.map((value) => ({ value, label: t(`maintenance.status.${value}`) }))}
 		/>
 		<EnumSelect
-			id="maintenance-filter-maintenanceType"
+			id="maintenance-filter-maintenanceType" class="h-9 w-full sm:w-44"
 			value={maintenanceType}
 			onchange={(value) => {
 				maintenanceType = value;
@@ -164,7 +164,7 @@
 			options={maintenanceTypes.map((value) => ({ value, label: t(`maintenance.type.${value}`) }))}
 		/>
 		<EnumSelect
-			id="maintenance-filter-priority"
+			id="maintenance-filter-priority" class="h-9 w-full sm:w-44"
 			value={priority}
 			onchange={(value) => {
 				priority = value;
@@ -209,7 +209,7 @@
 							<Table.Head class="hidden xl:table-cell">{t('maintenance.assignee')}</Table.Head>
 							<Table.Head class="hidden lg:table-cell">{t('maintenance.scheduledAt')}</Table.Head>
 							<Table.Head class="hidden xl:table-cell">{t('maintenance.cost')}</Table.Head>
-							<Table.Head class="w-0">{t('common.actions')}</Table.Head>
+							<Table.Head class="w-48">{t('common.actions')}</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>

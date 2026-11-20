@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { debounce } from '@tanstack/pacer';
+	import { onMount } from 'svelte';
 	import { t } from '#lib/i18n/index.js';
-	import { Input } from '#lib/components/ui/input/index.js';
 	import { listAssets, type Asset } from '#lib/api/assets.js';
 	import SearchSelect, { type SelectOption } from '#lib/components/domain/search-select.svelte';
 
@@ -17,24 +16,20 @@
 		disabled?: boolean;
 	} = $props();
 
-	let query = $state('');
 	let assets = $state<Asset[]>([]);
 	let chosen = $state<Asset | null>(null);
 
-	const search = debounce(
-		async (q: string) => {
-			try {
-				const result = await listAssets({ q, per_page: 25 });
-				assets = result.items;
-			} catch {
-				// The select keeps the last known list; the server error surfaces on submit.
-			}
-		},
-		{ wait: 250 }
-	);
+	async function load() {
+		try {
+			const result = await listAssets({ per_page: 50 });
+			assets = result.items;
+		} catch {
+			// The select keeps the last known list; the server error surfaces on submit.
+		}
+	}
 
-	$effect(() => {
-		if (!disabled) void search(query);
+	onMount(() => {
+		void load();
 	});
 
 	$effect(() => {
@@ -65,13 +60,6 @@
 </script>
 
 <div class="flex flex-col gap-1.5">
-	<Input
-		class="h-9 text-sm"
-		placeholder={t('assetSelect.search')}
-		aria-label={t('userSelect.searchLabel', { label })}
-		{disabled}
-		bind:value={query}
-	/>
 	<SearchSelect
 		aria-label={label}
 		{value}

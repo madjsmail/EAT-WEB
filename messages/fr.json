@@ -834,5 +834,6 @@
   "dynamicSelect.empty": "Aucune option correspondante",
   "dynamicSelect.select": "Sélectionner…",
   "dynamicSelect.all": "Tous",
-  "dynamicSelect.required": "Sélectionnez une valeur"
+  "dynamicSelect.required": "Sélectionnez une valeur",
+  "maintenance.type.corrective": "Correctif"
 }

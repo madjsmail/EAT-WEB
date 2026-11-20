@@ -834,5 +834,6 @@
   "dynamicSelect.empty": "لا يوجد خيار مطابق",
   "dynamicSelect.select": "اختر…",
   "dynamicSelect.all": "الكل",
-  "dynamicSelect.required": "اختر قيمة"
+  "dynamicSelect.required": "اختر قيمة",
+  "maintenance.type.corrective": "تصحيحي"
 }

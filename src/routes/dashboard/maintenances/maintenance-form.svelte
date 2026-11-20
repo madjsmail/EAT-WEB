@@ -50,7 +50,7 @@
 
 	const supplierChoices = $derived(lookupOptions(suppliers));
 
-	const maintenanceTypes = ['repair', 'preventive', 'inspection', 'other'];
+	const maintenanceTypes = ['repair', 'preventive', 'inspection', 'corrective', 'other'];
 	const priorities = ['low', 'medium', 'high', 'critical'];
 	const currencies = ['USD', 'EUR', 'GBP', 'MAD', 'AED', 'SAR'];
 

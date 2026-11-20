@@ -113,7 +113,7 @@
 </script>
 
 {#if canWrite && actions.length > 0}
-	<div class="flex flex-wrap items-center gap-2">
+	<div class="flex flex-row items-center justify-end gap-2">
 		{#if actions.includes('start')}
 			<Button size="sm" disabled={busy} onclick={start}>
 				<PlayIcon />
