@@ -1,9 +1,11 @@
 @import 'tailwindcss';
 @import "tw-animate-css";
 @import "shadcn-svelte/tailwind.css";
+@import "../lib/styles/style-nova.css" layer(base);
 @import "@fontsource-variable/inter";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant style-nova (&:where(.style-nova *));
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
