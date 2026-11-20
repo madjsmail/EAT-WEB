@@ -21,11 +21,14 @@
 	const id = $props.id();
 
 	/**
-	 * The backend still scopes credentials by organization, so the slug is
-	 * resolved silently. `?org=` stays available for multi-tenant links.
+	 * One user belongs to exactly one organization, so the login form never asks
+	 * for it. Until the API resolves the tenant from the user's email (EAT-BAVCEND
+	 * issue #18) the slug is still required by `POST /auth/login`; it therefore
+	 * falls back to the seeded development organization, and `?org=` overrides it
+	 * for other deployments.
 	 */
-	const DEFAULT_ORG_SLUG = 'acme';
-	const organizationSlug = page.url.searchParams.get('org') ?? DEFAULT_ORG_SLUG;
+	const DEV_ORG_SLUG = 'acme';
+	const organizationSlug = page.url.searchParams.get('org') ?? DEV_ORG_SLUG;
 
 	let email = $state(page.url.searchParams.get('email') ?? '');
 	let password = $state('');
