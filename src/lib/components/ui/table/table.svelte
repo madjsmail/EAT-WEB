@@ -5,12 +5,13 @@
 	let {
 		ref = $bindable(null),
 		class: className,
+		containerClass,
 		children,
 		...restProps
-	}: WithElementRef<HTMLTableAttributes> = $props();
+	}: WithElementRef<HTMLTableAttributes> & { containerClass?: string } = $props();
 </script>
 
-<div data-slot="table-container" class="cn-table-container">
+<div data-slot="table-container" class={cn("cn-table-container", containerClass)}>
 	<table bind:this={ref} data-slot="table" class={cn("cn-table", className)} {...restProps}>
 		{@render children?.()}
 	</table>

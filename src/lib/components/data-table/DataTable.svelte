@@ -143,7 +143,9 @@
 			</div>
 		{:else}
 			<div class="rounded-md border">
-				<Table.Root>
+				<Table.Root
+					containerClass="max-h-[calc(100svh-19rem)] overflow-auto overscroll-contain [scrollbar-gutter:stable]"
+				>
 					<Table.Header>
 						{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
 							<Table.Row>
@@ -152,11 +154,13 @@
 										{#snippet children(h)}
 											<Table.Head
 												colspan={h.colSpan}
-												class={cn("relative h-8 px-2", {
+												class={cn("h-8 bg-background px-2", {
 													"text-center [&>[role=checkbox]]:mx-auto":
 														h.column.id === "select",
 												})}
-												style={`width: ${h.getSize()}px; ${getCommonPinningStyles(h.column)}`}
+												style={`width: ${h.getSize()}px; ${getCommonPinningStyles(
+													h.column,
+												)}; position: sticky; top: 0; z-index: 20`}
 											>
 												{#if !h.isPlaceholder}
 													<h.FlexRender header={h} />
