@@ -1,5 +1,9 @@
 # AGENTS.md — SvelteKit Asset Tracking UI (`web/`)
 
+
+## rules
+- **BRANCH FIRST:** Create a feature branch (e.g. `feature/milestone-N-<scope>`) before the first edit of any task; never work directly on `main`.
+
 ## 1. Mission & Strict Scope Guardrails
 You are working strictly inside the **SvelteKit Web Frontend** (`web/`).
 - **NEVER** modify Rust backend files (`backend/`), SQL migrations, or backend configs.
