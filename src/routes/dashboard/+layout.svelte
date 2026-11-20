@@ -1,20 +1,29 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import * as Sidebar from '#lib/components/ui/sidebar/index.js';
 	import { Skeleton } from '#lib/components/ui/skeleton/index.js';
 	import AppSidebar from '#lib/components/app-sidebar.svelte';
 	import SiteHeader from '#lib/components/site-header.svelte';
+	import { alerts } from '#lib/stores/alerts.svelte.js';
 	import { session } from '#lib/stores/session.svelte.js';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
 
 	onMount(async () => {
-		if (await session.ensure()) return;
+		if (await session.ensure()) {
+			await alerts.refresh();
+			return;
+		}
 
 		await goto(resolve('/login'), { replace: true });
+	});
+
+	// No websockets: badge counts refresh on every client-side navigation.
+	afterNavigate(() => {
+		if (session.user) void alerts.refresh();
 	});
 </script>
 

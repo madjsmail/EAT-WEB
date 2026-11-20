@@ -1,6 +1,6 @@
-import type { PageLoad } from "./$types";
-import { makeAssets } from "./data.js";
+import type { PageLoad } from './$types';
+import { makeAssets } from './data.js';
 
 export const load: PageLoad = () => ({
-	assets: makeAssets(),
+	assets: makeAssets()
 });

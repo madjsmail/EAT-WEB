@@ -131,3 +131,28 @@
 		@apply font-sans;
 	}
 }
+
+/* 50 × 25 mm asset label printing. */
+@page {
+	size: 50mm 25mm;
+	margin: 0;
+}
+
+@media print {
+	body * {
+		visibility: hidden;
+	}
+	.label-print,
+	.label-print * {
+		visibility: visible;
+	}
+	.label-print {
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		width: 50mm;
+		height: 25mm;
+		border: 0;
+		padding: 1mm;
+	}
+}

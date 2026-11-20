@@ -8,6 +8,7 @@
 	import { links } from "#lib/config/navigation.js";
 	import { t } from "#lib/i18n/index.js";
 	import LocaleSwitcher from "./locale-switcher.svelte";
+	import ScanInput from "./scan-input.svelte";
 	import SearchForm from "./search-form.svelte";
 	import ThemeSwatches from "./theme-swatches.svelte";
 
@@ -45,6 +46,7 @@
 				{/if}
 			</Breadcrumb.List>
 		</Breadcrumb.Root>
+		<ScanInput />
 		<SearchForm class="min-w-0 flex-1 sm:ms-auto sm:max-w-64" />
 		<LocaleSwitcher />
 		<ThemeSwatches />
