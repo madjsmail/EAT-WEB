@@ -7,6 +7,8 @@ import PackageIcon from '@lucide/svelte/icons/package';
 import PackageOpenIcon from '@lucide/svelte/icons/package-open';
 import ListTreeIcon from '@lucide/svelte/icons/list-tree';
 import BoxesIcon from '@lucide/svelte/icons/boxes';
+import WrenchIcon from '@lucide/svelte/icons/wrench';
+import ScrollTextIcon from '@lucide/svelte/icons/scroll-text';
 import type { Component } from 'svelte';
 
 /** Advisory counter rendered next to the label; sourced from the alerts store. */
@@ -20,6 +22,8 @@ export type NavHref =
 	| '/dashboard/accessories'
 	| '/dashboard/consumables'
 	| '/dashboard/licenses'
+	| '/dashboard/maintenances'
+	| '/dashboard/audit-logs'
 	| '/dashboard/invitations'
 	| '/dashboard/settings/lookups'
 	| '/dashboard/settings/sessions';
@@ -80,6 +84,18 @@ export const navGroups: NavGroup[] = [
 				icon: KeyRoundIcon,
 				permission: 'licenses.read',
 				badge: 'licenseExpiring'
+			},
+			{
+				titleKey: 'nav.maintenances',
+				href: '/dashboard/maintenances',
+				icon: WrenchIcon,
+				permission: 'maintenances.read'
+			},
+			{
+				titleKey: 'nav.auditLogs',
+				href: '/dashboard/audit-logs',
+				icon: ScrollTextIcon,
+				permission: 'audit.read'
 			},
 			{
 				titleKey: 'nav.invitations',

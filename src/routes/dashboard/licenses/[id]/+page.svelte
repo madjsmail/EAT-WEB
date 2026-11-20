@@ -29,6 +29,7 @@
 	import * as Sheet from '#lib/components/ui/sheet/index.js';
 	import * as Table from '#lib/components/ui/table/index.js';
 	import AssignmentTarget from '#lib/components/domain/assignment-target.svelte';
+	import AttachmentPanel from '#lib/components/domain/attachment-panel.svelte';
 	import LicenseForm from '../license-form.svelte';
 
 	const id = $derived(page.params.id ?? '');
@@ -301,6 +302,12 @@
 					</Table.Body>
 				</Table.Root>
 			{/if}
+		</section>
+	{/if}
+
+	{#if license && session.has('attachments.read')}
+		<section class="rounded-lg border bg-card p-6">
+			<AttachmentPanel attachableType="license" attachableId={license.id} />
 		</section>
 	{/if}
 </div>
