@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { debounce } from '@tanstack/pacer';
 	import { t } from '#lib/i18n/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { ApiError } from '#lib/api/client.js';
@@ -21,31 +20,34 @@
 		valueLabel?: string;
 	} = $props();
 
-	let query = $state('');
 	let users = $state<UserSummary[]>([]);
-	let loading = $state(false);
+	let loading = $state(true);
 	/** A failed lookup falls back to the raw UUID so the filter keeps working. */
 	let unavailable = $state(false);
 
-	const search = debounce(
-		async (q: string) => {
-			loading = true;
-			try {
-				const result = await searchUsers(q, 20);
-				users = result.items;
-				unavailable = false;
-			} catch (cause) {
-				unavailable = !(cause instanceof ApiError);
-				users = [];
-			} finally {
-				loading = false;
-			}
-		},
-		{ wait: 250 }
-	);
-
+	// Single control: the popover's own command input filters this list.
+	// ponytail: first 100 users only; add server-side search when directories grow past that.
 	$effect(() => {
-		void search(query);
+		let cancelled = false;
+		(async () => {
+			try {
+				const result = await searchUsers('', 100);
+				if (!cancelled) {
+					users = result.items;
+					unavailable = false;
+				}
+			} catch (cause) {
+				if (!cancelled) {
+					unavailable = !(cause instanceof ApiError);
+					users = [];
+				}
+			} finally {
+				if (!cancelled) loading = false;
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
 	});
 
 	let chosen = $state<UserSummary | null>(null);
@@ -76,13 +78,6 @@
 </script>
 
 <div class="flex flex-col gap-1.5">
-	<Input
-		class="h-8 text-sm"
-		placeholder={t('userSelect.search')}
-		aria-label={t('userSelect.searchLabel', { label })}
-		{disabled}
-		bind:value={query}
-	/>
 	{#if unavailable}
 		<Input
 			class="h-8 font-mono text-xs"
