@@ -27,11 +27,18 @@ interface ApiEnvelope<T> {
 	error_stack?: ApiErrorItem[];
 }
 
-/** Build a query string, dropping empty values. */
+/** Build a query string, dropping empty values and repeating array params. */
 export function buildQuery(params: object): string {
 	const query = new URLSearchParams();
 	for (const [key, value] of Object.entries(params)) {
 		if (value === undefined || value === null || value === '') continue;
+		if (Array.isArray(value)) {
+			for (const item of value) {
+				if (item === undefined || item === null || item === '') continue;
+				query.append(key, String(item));
+			}
+			continue;
+		}
 		query.set(key, String(value));
 	}
 	const encoded = query.toString();
@@ -42,13 +49,27 @@ export class ApiError extends Error {
 	readonly status: number;
 	readonly code: string;
 	readonly field: string | null;
+	/** Every entry from the envelope, so forms can show each field error inline. */
+	readonly errors: ApiErrorItem[];
 
-	constructor(status: number, message: string, code = 'error', field: string | null = null) {
+	constructor(
+		status: number,
+		message: string,
+		code = 'error',
+		field: string | null = null,
+		errors: ApiErrorItem[] = []
+	) {
 		super(message);
 		this.name = 'ApiError';
 		this.status = status;
 		this.code = code;
 		this.field = field;
+		this.errors = errors.length > 0 ? errors : field ? [{ field, code, message }] : [];
+	}
+
+	/** Message registered for a specific form field, when the API reported one. */
+	fieldError(field: string): string | null {
+		return this.errors.find((item) => item.field === field)?.message ?? null;
 	}
 
 	get isUnauthorized(): boolean {
@@ -65,7 +86,8 @@ async function request<T>(
 	fetchImpl: typeof fetch = fetch
 ): Promise<ApiEnvelope<T>> {
 	const headers = new Headers(init.headers);
-	if (init.body && !headers.has('content-type')) {
+	const isForm = init.body instanceof FormData;
+	if (init.body && !isForm && !headers.has('content-type')) {
 		headers.set('content-type', 'application/json');
 	}
 	if (!headers.has('accept-language')) {
@@ -85,12 +107,14 @@ async function request<T>(
 
 	const payload = (await response.json().catch(() => null)) as ApiEnvelope<T> | null;
 	if (!response.ok || payload?.error || !payload) {
-		const first = payload?.error_stack?.[0];
+		const errors = payload?.error_stack ?? [];
+		const first = errors[0];
 		throw new ApiError(
 			response.status,
 			first?.message ?? payload?.message ?? response.statusText,
 			first?.code ?? 'error',
-			first?.field ?? null
+			first?.field ?? null,
+			errors
 		);
 	}
 

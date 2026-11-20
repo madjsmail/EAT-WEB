@@ -39,6 +39,7 @@
 	import * as Table from '#lib/components/ui/table/index.js';
 	import AssetForm from '#lib/components/domain/asset-form.svelte';
 	import StatusBadge from '#lib/components/domain/status-badge.svelte';
+	import AttachmentPanel from '#lib/components/domain/attachment-panel.svelte';
 
 	const id = $derived(page.params.id ?? '');
 	const canWrite = $derived(session.has('assets.write'));
@@ -588,6 +589,12 @@
 				</section>
 			</div>
 		{/if}
+	{/if}
+
+	{#if asset && session.has('attachments.read')}
+		<section class="rounded-lg border bg-card p-6">
+			<AttachmentPanel attachableType="asset" attachableId={asset.id} />
+		</section>
 	{/if}
 </div>
 
