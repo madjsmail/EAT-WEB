@@ -105,6 +105,17 @@ async function request<T>(
 		throw new ApiError(0, 'Network request failed', 'network_error');
 	}
 
+	// An expired/revoked session only shows up as 401 on the next API call.
+	// Auth endpoints are excluded so a bad password stays a form error.
+	if (
+		response.status === 401 &&
+		!path.startsWith('/auth/') &&
+		typeof window !== 'undefined' &&
+		window.location.pathname !== '/login'
+	) {
+		window.location.assign('/login');
+	}
+
 	const payload = (await response.json().catch(() => null)) as ApiEnvelope<T> | null;
 	if (!response.ok || payload?.error || !payload) {
 		const errors = payload?.error_stack ?? [];

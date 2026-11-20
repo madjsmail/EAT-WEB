@@ -3,6 +3,7 @@ import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 import MailPlusIcon from '@lucide/svelte/icons/mail-plus';
 import MonitorSmartphoneIcon from '@lucide/svelte/icons/monitor-smartphone';
+import UsersIcon from '@lucide/svelte/icons/users';
 import PackageIcon from '@lucide/svelte/icons/package';
 import PackageOpenIcon from '@lucide/svelte/icons/package-open';
 import ListTreeIcon from '@lucide/svelte/icons/list-tree';
@@ -17,6 +18,7 @@ export type NavBadge = 'lowStock' | 'licenseExpiring';
 /** Static destinations only — sidebar entries never take route params. */
 export type NavHref =
 	| '/dashboard'
+	| '/dashboard/users'
 	| '/dashboard/assets'
 	| '/dashboard/products'
 	| '/dashboard/accessories'
@@ -52,6 +54,12 @@ export const navGroups: NavGroup[] = [
 				titleKey: 'nav.dashboard',
 				href: '/dashboard',
 				icon: LayoutDashboardIcon
+			},
+			{
+				titleKey: 'nav.users',
+				href: '/dashboard/users',
+				icon: UsersIcon,
+				permission: 'users.read'
 			},
 			{
 				titleKey: 'nav.assets',

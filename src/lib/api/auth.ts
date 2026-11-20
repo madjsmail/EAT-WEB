@@ -20,6 +20,20 @@ export interface LoginInput {
 	password: string;
 }
 
+export interface LoginRequestInput {
+	organization_slug: string;
+	email: string;
+}
+
+export interface SetupAccountInput {
+	token: string;
+	password: string;
+	first_name?: string;
+	last_name?: string;
+	phone_number?: string;
+	preferred_locale?: string;
+}
+
 export interface LoginResult {
 	user: UserProfile;
 	permissions: string[];
@@ -32,6 +46,22 @@ export interface MeResult {
 	permissions: string[];
 	organization_id: string;
 	session_id: string;
+}
+
+/** Always answers 200, so the UI never learns whether the email exists. */
+export function requestLoginLink(input: LoginRequestInput): Promise<{ message: string }> {
+	return apiRequest<{ message: string }>('/auth/login-request', {
+		method: 'POST',
+		body: JSON.stringify(input)
+	});
+}
+
+/** Consumes a one-time setup token and opens a session. */
+export function setupAccount(input: SetupAccountInput): Promise<LoginResult> {
+	return apiRequest<LoginResult>('/auth/setup-account', {
+		method: 'POST',
+		body: JSON.stringify(input)
+	});
 }
 
 export function login(input: LoginInput): Promise<LoginResult> {

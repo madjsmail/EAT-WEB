@@ -10,12 +10,15 @@
 		value = '',
 		label,
 		onchange,
-		disabled = false
+		disabled = false,
+		valueLabel = ''
 	}: {
 		value?: string;
 		label: string;
 		onchange: (userId: string) => void;
 		disabled?: boolean;
+		/** Label for a value that is set before the search results load (edit forms). */
+		valueLabel?: string;
 	} = $props();
 
 	let query = $state('');
@@ -53,7 +56,11 @@
 			return;
 		}
 		const found = users.find((user) => user.id === value);
-		if (found) chosen = found;
+		if (found) {
+			chosen = found;
+		} else if (valueLabel) {
+			chosen = { id: value, email: '', first_name: valueLabel, last_name: '' };
+		}
 	});
 
 	const options = $derived<SelectOption[]>([
@@ -89,7 +96,7 @@
 	{:else}
 		<SearchSelect
 			aria-label={label}
-			value={value}
+			{value}
 			{options}
 			placeholder={t('dynamicSelect.select')}
 			{disabled}
