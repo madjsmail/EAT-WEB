@@ -1,18 +1,32 @@
 <script lang="ts">
 	import { onMount, untrack } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { ApiError, type Pagination } from '#lib/api/client.js';
 	import { listAuditLogs, type AuditEntry } from '#lib/api/audit.js';
-	import { auditableTypes, auditEvents, entityHref, prettyJson, typeLabel } from '#lib/config/audit.js';
+	import {
+		auditableTypes,
+		auditEvents,
+		entityHref,
+		eventLabel,
+		eventTone,
+		inlineValue,
+		prettyJson,
+		typeLabel
+	} from '#lib/config/audit.js';
 	import { t } from '#lib/i18n/index.js';
 	import { session } from '#lib/stores/session.svelte.js';
+	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import { Badge } from '#lib/components/ui/badge/index.js';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { Skeleton } from '#lib/components/ui/skeleton/index.js';
+	import * as Collapsible from '#lib/components/ui/collapsible/index.js';
 	import * as Sheet from '#lib/components/ui/sheet/index.js';
 	import * as Select from '#lib/components/ui/select/index.js';
-	import AuditEntryItem from '#lib/components/domain/audit-entry.svelte';
+	import * as Table from '#lib/components/ui/table/index.js';
+	import { RelativeTime } from '#lib/components/ui/relative-time/index.js';
 	import UserSelect from '#lib/components/domain/user-select.svelte';
 	import TablePagination from '#lib/components/domain/table-pagination.svelte';
 
@@ -30,7 +44,10 @@
 		per_page: number;
 	}
 
-	function readFilters(search: { get(key: string): string | null; getAll(key: string): string[] }): Filters {
+	function readFilters(search: {
+		get(key: string): string | null;
+		getAll(key: string): string[];
+	}): Filters {
 		const perPage = Number.parseInt(search.get('per_page') ?? '25', 10);
 		return {
 			search: search.get('search') ?? '',
@@ -60,6 +77,12 @@
 	let error = $state<string | null>(null);
 	let fieldErrors = $state<Record<string, string>>({});
 	let active = $state<AuditEntry | null>(null);
+	let expanded = new SvelteSet<string>();
+
+	function toggleRow(id: string) {
+		if (expanded.has(id)) expanded.delete(id);
+		else expanded.add(id);
+	}
 
 	function toRfc3339(date: string, endOfDay = false): string | undefined {
 		if (!date) return undefined;
@@ -91,9 +114,7 @@
 			if (cause instanceof ApiError && cause.status > 0) {
 				error = cause.message;
 				fieldErrors = Object.fromEntries(
-					cause.errors.flatMap((item) =>
-						item.field ? [[item.field, item.message] as const] : []
-					)
+					cause.errors.flatMap((item) => (item.field ? [[item.field, item.message] as const] : []))
 				);
 			} else {
 				error = t('auth.genericError');
@@ -109,7 +130,8 @@
 		if (filters.search) next.set('search', filters.search);
 		if (filters.actor_id) next.set('actor_id', filters.actor_id);
 		if (filters.auditable_type) next.set('auditable_type', filters.auditable_type);
-		if (filters.auditable_id && filters.auditable_type) next.set('auditable_id', filters.auditable_id);
+		if (filters.auditable_id && filters.auditable_type)
+			next.set('auditable_id', filters.auditable_id);
 		for (const event of filters.event) next.append('event', event);
 		if (filters.date_from) next.set('date_from', filters.date_from);
 		if (filters.date_to) next.set('date_to', filters.date_to);
@@ -173,7 +195,10 @@
 			<p class="text-sm text-muted-foreground">{t('audit.noAccessDescription')}</p>
 		</section>
 	{:else}
-		<form class="grid gap-3 rounded-lg border bg-card p-3 md:grid-cols-2 xl:grid-cols-4" onsubmit={apply}>
+		<form
+			class="grid gap-3 rounded-lg border bg-card p-3 md:grid-cols-2 xl:grid-cols-4"
+			onsubmit={apply}
+		>
 			<div class="flex flex-col gap-1.5">
 				<label class="text-xs font-medium" for="audit-search">{t('table.search')}</label>
 				<Input
@@ -313,11 +338,114 @@
 					<p class="text-sm text-muted-foreground">{t('audit.emptyDescription')}</p>
 				</div>
 			{:else}
-				<ol class="relative p-4 ps-6 before:absolute before:inset-y-4 before:start-3 before:w-px before:bg-border">
-					{#each entries as entry (entry.id)}
-						<AuditEntryItem {entry} onopen={(value) => (active = value)} />
-					{/each}
-				</ol>
+				<Table.Root>
+					<Table.Header>
+						<Table.Row class="hover:bg-transparent">
+							<Table.Head class="w-32">{t('audit.action')}</Table.Head>
+							<Table.Head>{t('audit.actor')}</Table.Head>
+							<Table.Head>{t('audit.entity')}</Table.Head>
+							<Table.Head class="w-32">{t('audit.changes')}</Table.Head>
+							<Table.Head class="w-32 text-end">{t('audit.timestamp')}</Table.Head>
+							<Table.Head class="w-32 text-end">{t('audit.details')}</Table.Head>
+						</Table.Row>
+					</Table.Header>
+					<Table.Body>
+						{#each entries as entry (entry.id)}
+							{@const href = entityHref(entry.auditable_type, entry.auditable_id)}
+							<Table.Row
+								class="cursor-pointer text-sm hover:bg-muted/50"
+								aria-expanded={expanded.has(entry.id)}
+								onclick={() => entry.changes.length > 0 && toggleRow(entry.id)}
+							>
+								<Table.Cell>
+									<Badge variant="outline" class="border-transparent {eventTone(entry.event)}">
+										{eventLabel(entry.event)}
+									</Badge>
+								</Table.Cell>
+								<Table.Cell>
+									<div class="flex flex-col">
+										<span class="font-medium">{entry.actor_name || t('audit.system')}</span>
+										<span class="text-xs text-muted-foreground">{entry.actor_email ?? '—'}</span>
+									</div>
+								</Table.Cell>
+								<Table.Cell>
+									<div class="flex flex-col">
+										<span>{typeLabel(entry.auditable_type)}</span>
+										{#if href}
+											<a
+												class="font-mono text-xs text-muted-foreground underline-offset-2 hover:underline"
+												{href}
+												onclick={(event) => event.stopPropagation()}
+											>
+												{entry.auditable_id.slice(0, 8)}
+											</a>
+										{:else}
+											<span class="font-mono text-xs text-muted-foreground">
+												{entry.auditable_id.slice(0, 8)}
+											</span>
+										{/if}
+									</div>
+								</Table.Cell>
+								<Table.Cell class="text-xs text-muted-foreground">
+									{#if entry.changes.length > 0}
+										{t('audit.changesCount', { count: entry.changes.length })}
+									{/if}
+								</Table.Cell>
+								<Table.Cell class="text-end text-xs text-muted-foreground">
+									<RelativeTime date={entry.created_at} />
+								</Table.Cell>
+								<Table.Cell class="text-end">
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-7 gap-1 text-xs"
+										onclick={(event) => {
+											event.stopPropagation();
+											active = entry;
+										}}
+									>
+										{t('audit.openDetails')}
+										<ChevronRightIcon class="size-3.5" />
+									</Button>
+								</Table.Cell>
+							</Table.Row>
+
+							{#if expanded.has(entry.id) && entry.changes.length > 0}
+								<Table.Row class="hover:bg-transparent">
+									<Table.Cell colspan={6} class="p-0">
+										<Collapsible.Root open>
+											<Collapsible.Content>
+												<dl
+													class="flex flex-col gap-2 border-s-2 border-primary/40 bg-muted/30 px-4 py-3 text-xs"
+												>
+													{#each entry.changes as change (change.field)}
+														<div class="flex flex-wrap items-center gap-2">
+															<dt class="min-w-28 font-medium">{change.field}</dt>
+															<dd class="flex items-center gap-1">
+																<code
+																	class="rounded bg-rose-500/10 px-1 text-rose-700 line-through dark:text-rose-300"
+																>
+																	{inlineValue(change.old)}
+																</code>
+																<span class="text-muted-foreground">→</span>
+																<code
+																	class="rounded bg-emerald-500/10 px-1 text-emerald-700 dark:text-emerald-300"
+																>
+																	{inlineValue(change.new)}
+																</code>
+															</dd>
+														</div>
+													{/each}
+												</dl>
+											</Collapsible.Content>
+										</Collapsible.Root>
+									</Table.Cell>
+								</Table.Row>
+							{/if}
+						{/each}
+					</Table.Body>
+				</Table.Root>
 				<TablePagination {pagination} onpage={changePage} />
 			{/if}
 		</section>
@@ -345,14 +473,17 @@
 				<div class="grid gap-1 text-xs text-muted-foreground">
 					<span>{t('audit.actorEmail')}: {active.actor_email ?? '—'}</span>
 					<span>{t('audit.actorIp')}: {active.actor_ip ?? '—'}</span>
-					<span class="break-all">{t('audit.actorUserAgent')}: {active.actor_user_agent ?? '—'}</span>
+					<span class="break-all">
+						{t('audit.actorUserAgent')}: {active.actor_user_agent ?? '—'}
+					</span>
 				</div>
 				{#each [{ label: t('audit.oldValues'), value: active.old_values }, { label: t('audit.newValues'), value: active.new_values }, { label: t('audit.diff'), value: active.diff }, { label: t('audit.metadata'), value: active.metadata }] as block (block.label)}
 					<div>
 						<p class="mb-1 text-xs font-medium">{block.label}</p>
-						<pre class="max-h-64 overflow-auto rounded-md border bg-muted/40 p-2 text-xs">{prettyJson(
-							block.value
-						)}</pre>
+						<pre
+							class="max-h-64 overflow-auto rounded-md border bg-muted/40 p-2 text-xs">{prettyJson(
+								block.value
+							)}</pre>
 					</div>
 				{/each}
 			</div>
