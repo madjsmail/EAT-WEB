@@ -20,7 +20,13 @@
 
 	const id = $props.id();
 
-	let organizationSlug = $state(page.url.searchParams.get('org') ?? '');
+	/**
+	 * The backend still scopes credentials by organization, so the slug is
+	 * resolved silently. `?org=` stays available for multi-tenant links.
+	 */
+	const DEFAULT_ORG_SLUG = 'acme';
+	const organizationSlug = page.url.searchParams.get('org') ?? DEFAULT_ORG_SLUG;
+
 	let email = $state(page.url.searchParams.get('email') ?? '');
 	let password = $state('');
 	let error = $state<string | null>(null);
@@ -35,7 +41,7 @@
 
 		try {
 			const result = await login({
-				organization_slug: organizationSlug.trim(),
+				organization_slug: organizationSlug,
 				email: email.trim(),
 				password
 			});
@@ -68,19 +74,6 @@
 
 	<form onsubmit={onSubmit} class="flex flex-col gap-5">
 		<FieldGroup>
-			<Field>
-				<FieldLabel for="org-{id}">{t('auth.orgSlug')}</FieldLabel>
-				<Input
-					id="org-{id}"
-					name="organization_slug"
-					bind:value={organizationSlug}
-					placeholder={t('auth.orgSlugPlaceholder')}
-					autocomplete="organization"
-					required
-					disabled={submitting}
-				/>
-			</Field>
-
 			<Field>
 				<FieldLabel for="email-{id}">{t('auth.email')}</FieldLabel>
 				<Input
