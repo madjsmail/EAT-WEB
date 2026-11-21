@@ -25,6 +25,7 @@
 		type LabelSymbology
 	} from '#lib/api/assets.js';
 	import { returnAccessory } from '#lib/api/accessories.js';
+	import { listMaintenanceHistory, type MaintenanceHistoryItem } from '#lib/api/maintenances.js';
 	import { listLookups, type Lookup } from '#lib/api/lookups.js';
 	import { listProducts, type Product } from '#lib/api/products.js';
 	import { t } from '#lib/i18n/index.js';
@@ -53,9 +54,16 @@
 	let view = $state<Asset360 | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
-	let tab = $state<'accessories' | 'consumables' | 'software' | 'custody'>('accessories');
+	let tab = $state<'accessories' | 'consumables' | 'software' | 'custody' | 'maintenance'>(
+		'accessories'
+	);
 	let editOpen = $state(false);
 	let labelOpen = $state(false);
+
+	let history = $state<MaintenanceHistoryItem[]>([]);
+	let historyLoading = $state(false);
+	let historyError = $state<string | null>(null);
+	let historyLoaded = $state(false);
 
 	const asset = $derived(view?.asset ?? null);
 
@@ -143,6 +151,25 @@
 			// Custody selectors just stay empty.
 		}
 	});
+
+	async function loadHistory() {
+		historyLoading = true;
+		historyError = null;
+		try {
+			history = await listMaintenanceHistory(id);
+			historyLoaded = true;
+		} catch (cause) {
+			historyError =
+				cause instanceof ApiError && cause.status > 0 ? cause.message : t('auth.genericError');
+		} finally {
+			historyLoading = false;
+		}
+	}
+
+	function selectTab(next: typeof tab) {
+		tab = next;
+		if (next === 'maintenance' && !historyLoaded && !historyLoading) void loadHistory();
+	}
 
 	async function submitCustody(event: SubmitEvent) {
 		event.preventDefault();
@@ -300,14 +327,14 @@
 		</div>
 
 		<nav class="flex gap-1 overflow-x-auto border-b" aria-label={t('asset360.title')}>
-			{#each [{ key: 'accessories', label: t('asset360.tab.accessories') }, { key: 'consumables', label: t('asset360.tab.consumables') }, { key: 'software', label: t('asset360.tab.software') }, { key: 'custody', label: t('asset360.tab.custody') }] as item (item.key)}
+			{#each [{ key: 'accessories', label: t('asset360.tab.accessories') }, { key: 'consumables', label: t('asset360.tab.consumables') }, { key: 'software', label: t('asset360.tab.software') }, { key: 'custody', label: t('asset360.tab.custody') }, { key: 'maintenance', label: t('asset360.tab.maintenance') }] as item (item.key)}
 				<button
 					class="-mb-px border-b-2 px-3 py-2 text-sm whitespace-nowrap transition-colors {tab ===
 					item.key
 						? 'border-primary font-medium text-foreground'
 						: 'border-transparent text-muted-foreground hover:text-foreground'}"
 					aria-current={tab === item.key ? 'page' : undefined}
-					onclick={() => (tab = item.key as typeof tab)}
+					onclick={() => selectTab(item.key as typeof tab)}
 				>
 					{item.label}
 				</button>
@@ -445,7 +472,7 @@
 					</Table.Root>
 				{/if}
 			</section>
-		{:else}
+		{:else if tab === 'custody'}
 			<div class="flex flex-col gap-6">
 				{#if canAssign}
 					<section class="rounded-lg border bg-card p-4">
@@ -586,6 +613,65 @@
 					{/if}
 				</section>
 			</div>
+		{:else if tab === 'maintenance'}
+			<section class="rounded-lg border bg-card">
+				{#if historyLoading}
+					<div class="flex flex-col gap-2 p-4">
+						<Skeleton class="h-10 w-full" />
+						<Skeleton class="h-10 w-full" />
+						<Skeleton class="h-10 w-full" />
+					</div>
+				{:else if historyError}
+					<div class="flex flex-col items-start gap-3 p-6">
+						<p class="text-sm text-destructive">{historyError}</p>
+						<Button variant="outline" size="sm" onclick={loadHistory}>{t('table.retry')}</Button>
+					</div>
+				{:else if history.length === 0}
+					<div class="flex flex-col items-center gap-1 p-10 text-center">
+						<p class="font-medium">{t('asset360.maintenance.emptyTitle')}</p>
+						<p class="text-sm text-muted-foreground">
+							{t('asset360.maintenance.emptyDescription')}
+						</p>
+					</div>
+				{:else}
+					<ol class="divide-y">
+						{#each history as item, index (item.occurred_at + item.kind + index)}
+							{@const actor =
+								typeof item.payload.actor_name === 'string' ? item.payload.actor_name : null}
+							<li class="flex items-start gap-3 p-4">
+								<span class="mt-1.5 size-2 shrink-0 rounded-full bg-primary"></span>
+								<div class="flex min-w-0 flex-col gap-0.5">
+									<p class="text-sm font-medium">{item.summary}</p>
+									<p class="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
+										<span>
+											{formatDate(item.occurred_at, {
+												month: 'short',
+												hour: '2-digit',
+												minute: '2-digit'
+											})}
+										</span>
+										{#if item.work_order_id}
+											<span>
+												· {t('asset360.maintenance.workOrder')}
+												<span class="font-mono">{item.work_order_id.slice(0, 8)}</span>
+											</span>
+										{/if}
+										{#if item.schedule_id}
+											<span>
+												· {t('asset360.maintenance.schedule')}
+												<span class="font-mono">{item.schedule_id.slice(0, 8)}</span>
+											</span>
+										{/if}
+										{#if actor}
+											<span>· {actor}</span>
+										{/if}
+									</p>
+								</div>
+							</li>
+						{/each}
+					</ol>
+				{/if}
+			</section>
 		{/if}
 	{/if}
 

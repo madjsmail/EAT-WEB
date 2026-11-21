@@ -119,3 +119,23 @@ export function legalActions(status: string): MaintenanceAction[] {
 	if (status === 'in_progress') return ['complete', 'cancel'];
 	return [];
 }
+
+export interface MaintenanceHistoryItem {
+	occurred_at: string;
+	kind: string;
+	work_order_id: string | null;
+	schedule_id: string | null;
+	summary: string;
+	payload: Record<string, unknown>;
+}
+
+/** Per-asset feed of work-order and schedule events (cursor endpoint, capped by `limit`). */
+export async function listMaintenanceHistory(
+	assetId: string,
+	limit = 200
+): Promise<MaintenanceHistoryItem[]> {
+	const page = await apiRequestPage<MaintenanceHistoryItem>(
+		`/assets/${assetId}/maintenance-history?limit=${limit}`
+	);
+	return page.items;
+}
