@@ -8,7 +8,6 @@
 	import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 	import { login, requestLoginLink } from '#lib/api/auth.js';
 	import { ApiError } from '#lib/api/client.js';
-	import { currentOrgSlug } from '#lib/config/tenant.js';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import {
 		Field,
@@ -22,7 +21,6 @@
 	import { session } from '#lib/stores/session.svelte.js';
 
 	const id = $props.id();
-	const organizationSlug = currentOrgSlug(page.url);
 	const RESEND_SECONDS = 60;
 
 	let email = $state(page.url.searchParams.get('email') ?? '');
@@ -52,7 +50,7 @@
 		error = null;
 		submitting = true;
 		try {
-			await requestLoginLink({ organization_slug: organizationSlug, email: email.trim() });
+			await requestLoginLink({ email: email.trim() });
 			sent = true;
 			startCooldown();
 		} catch {
@@ -71,7 +69,6 @@
 		submitting = true;
 		try {
 			const result = await login({
-				organization_slug: organizationSlug,
 				email: email.trim(),
 				password
 			});

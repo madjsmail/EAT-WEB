@@ -15,13 +15,11 @@ export interface UserProfile {
 }
 
 export interface LoginInput {
-	organization_slug: string;
 	email: string;
 	password: string;
 }
 
 export interface LoginRequestInput {
-	organization_slug: string;
 	email: string;
 }
 
