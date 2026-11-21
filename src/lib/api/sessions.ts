@@ -5,18 +5,22 @@ export interface Session {
 	ip_address: string | null;
 	user_agent: string | null;
 	created_at: string;
+	last_seen_at: string;
 	expires_at: string;
 	current: boolean;
+	/** Alias of `current`, kept for API parity. */
+	is_current: boolean;
 }
 
 export function listSessions(): Promise<Session[]> {
-	return apiRequest<Session[]>('/sessions');
+	return apiRequest<Session[]>('/me/sessions');
 }
 
 export function revokeSession(id: string): Promise<Record<string, never>> {
-	return apiRequest<Record<string, never>>(`/sessions/${id}`, { method: 'DELETE' });
+	return apiRequest<Record<string, never>>(`/me/sessions/${id}`, { method: 'DELETE' });
 }
 
+/** Revokes every device except the one making the request. */
 export function revokeAllSessions(): Promise<{ revoked: number }> {
-	return apiRequest<{ revoked: number }>('/sessions', { method: 'DELETE' });
+	return apiRequest<{ revoked: number }>('/me/sessions', { method: 'DELETE' });
 }

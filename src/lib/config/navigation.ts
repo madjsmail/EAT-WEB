@@ -16,6 +16,7 @@ import Building2Icon from '@lucide/svelte/icons/building-2';
 import MapPinIcon from '@lucide/svelte/icons/map-pin';
 import TruckIcon from '@lucide/svelte/icons/truck';
 import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
+import UserRoundIcon from '@lucide/svelte/icons/user-round';
 import type { Component } from 'svelte';
 
 /** Advisory counter rendered next to the label; sourced from the alerts store. */
@@ -40,7 +41,9 @@ export type NavHref =
 	| '/dashboard/settings/lookups/locations'
 	| '/dashboard/settings/lookups/suppliers'
 	| '/dashboard/settings/lookups/depreciation-models'
-	| '/dashboard/settings/sessions';
+	| '/dashboard/settings/sessions'
+	| '/dashboard/settings/profile'
+	| '/dashboard/settings/organization';
 
 export interface NavLink {
 	/** Message key resolved with `t()` so the label follows the active locale. */
@@ -173,8 +176,24 @@ export const navGroups: NavGroup[] = [
 		]
 	},
 	{
+		labelKey: 'nav.group.org',
+		links: [
+			{
+				titleKey: 'nav.organization',
+				href: '/dashboard/settings/organization',
+				icon: Building2Icon,
+				permission: 'organizations.read'
+			}
+		]
+	},
+	{
 		labelKey: 'nav.group.settings',
 		links: [
+			{
+				titleKey: 'nav.profile',
+				href: '/dashboard/settings/profile',
+				icon: UserRoundIcon
+			},
 			{
 				titleKey: 'nav.sessions',
 				href: '/dashboard/settings/sessions',

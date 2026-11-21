@@ -71,9 +71,10 @@
 
 		revokingAll = true;
 		try {
+			// The current session is kept, so the user stays signed in.
 			const result = await revokeAllSessions();
 			toast.success(t('sessions.revokedAllToast', { count: result.revoked }));
-			await leave();
+			await load();
 		} catch (cause) {
 			toast.error(
 				cause instanceof ApiError && cause.status > 0 ? cause.message : t('auth.genericError')
@@ -126,6 +127,7 @@
 						<Table.Head>{t('sessions.device')}</Table.Head>
 						<Table.Head>{t('sessions.ip')}</Table.Head>
 						<Table.Head>{t('sessions.created')}</Table.Head>
+						<Table.Head>{t('sessions.lastSeen')}</Table.Head>
 						<Table.Head>{t('sessions.expires')}</Table.Head>
 						<Table.Head class="w-0">{t('common.actions')}</Table.Head>
 					</Table.Row>
@@ -147,6 +149,9 @@
 							<Table.Cell class="text-muted-foreground">{item.ip_address ?? '—'}</Table.Cell>
 							<Table.Cell class="text-muted-foreground">
 								{formatDate(item.created_at)}
+							</Table.Cell>
+							<Table.Cell class="text-muted-foreground">
+								{formatDate(item.last_seen_at)}
 							</Table.Cell>
 							<Table.Cell class="text-muted-foreground">
 								{formatDate(item.expires_at)}
