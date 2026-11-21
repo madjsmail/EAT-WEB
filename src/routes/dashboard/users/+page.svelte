@@ -24,7 +24,6 @@
 	} from '#lib/api/users.js';
 	import { listLookups, type Lookup } from '#lib/api/lookups.js';
 	import { lookupOptions } from '#lib/config/select-options.js';
-	import { currentOrgSlug } from '#lib/config/tenant.js';
 	import { t } from '#lib/i18n/index.js';
 	import { session } from '#lib/stores/session.svelte.js';
 	import { formatDate } from '#lib/utils.js';
@@ -144,7 +143,9 @@
 		void load(1);
 	}
 
-	const hasFilters = $derived(Boolean(q.trim() || departmentId || locationId || managerId || status));
+	const hasFilters = $derived(
+		Boolean(q.trim() || departmentId || locationId || managerId || status)
+	);
 
 	function clearFilters() {
 		q = '';
@@ -174,7 +175,7 @@
 	async function resendInvite(user: UserResponse) {
 		resendingId = user.id;
 		try {
-			await requestLoginLink({ organization_slug: currentOrgSlug(page.url), email: user.email });
+			await requestLoginLink({ email: user.email });
 			toast.success(t('user.inviteSent', { email: user.email }));
 		} catch (cause) {
 			toast.error(
