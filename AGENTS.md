@@ -86,3 +86,37 @@ https://github.com/users/madjsmail/projects/17
 
 Repository: `madjsmail/EAT-BAVCEND`. Add issues to project `17` and set
 Status to **Backlog**. Project and field IDs are in `.opencode/instructions.md`.
+
+### 6.1 GitHub MCP Issue/PR Format (front vs back)
+
+When filing bugs, tasks, or PRs via the GitHub MCP, always tag the affected
+area so triage is instant:
+
+- **Label:** apply exactly one of `front` (frontend/SvelteKit) or `back`
+  (backend/Rust). Never both; pick the primary affected area.
+- **Title prefix:** start the title with the area tag —
+  `[front] Bug: ...` or `[back] Bug: ...` (same for tasks/PRs:
+  `[front] Task: ...`, `[back] PR: ...`).
+- **Body (bug template):**
+  ```
+  ## Summary
+  <one-line what is broken>
+
+  ## Area
+  <module/route/component affected, e.g. assets/[id] or modules/assets>
+
+  ## Steps to Reproduce
+  1. ...
+  2. ...
+
+  ## Expected
+  <what should happen>
+
+  ## Actual
+  <what happens instead>
+
+  ## Environment
+  <browser/OS or endpoint/version, if relevant>
+  ```
+- Use the labels `front`/`back` only; do not invent new area labels. If a
+  change spans both, file two linked issues (one per area) and cross-reference.
